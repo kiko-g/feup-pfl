@@ -1,20 +1,17 @@
 # PLOG
 
-## Studio
+## Lectures
 
-Folder containing PROLOG tryouts and the suggested exercises of the practical lessons.
+Theoretical course content and resources
 
-## Midterms
+## Workshops
 
-Folder containing PROLOG midterms and some solutions.
+Prolog tryouts and the suggested exercises of the practical clases
 
-## Projects
+## Midterm
 
-- Project 1 (P1)
+Prolog midterm practice and some solutions
 
-  - Fuse board game in Prolog
-  - Grade: 18.6
+## Project
 
-- Project 2 (P2)
-  - Optimization problem
-  - Grade: 16.7
+Fuse board game in Prolog (18.6/20)
