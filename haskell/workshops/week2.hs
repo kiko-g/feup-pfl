@@ -1,15 +1,19 @@
 import Data.Char
 
 -- 2.1
+sumIntSquares :: Int -> Int
 sumIntSquares n = sum [x ^ 2 | x <- [1 .. n]]
 
 -- 2.2 a)
+aprox :: Int -> Double
 aprox n = 4 * sum [(-1) ^ i / fromIntegral (2 * i + 1) | i <- [0 .. n]]
 
 -- 2.2 b)
+aprox2 :: Int -> Double
 aprox2 n = sqrt (12 * sum [(-1) ^ i / fromIntegral (i + 1) ^ 2 | i <- [0 .. n]])
 
 -- 2.3
+dotprod :: [Float] -> [Float] -> Float
 dotprod la lb = sum [x * y | (x, y) <- zip la lb]
 
 -- 2.4
@@ -31,6 +35,15 @@ pitagoricos n =
   ]
 
 -- 2.7
+primo :: Integer -> Bool
+primo n = length (divprop n) == 1
+
+-- 2.8
+binom :: Integer -> Integer -> Integer
+binom n k = product [1 .. n] `div` (product [1 .. k] * product [1 .. (n - k)])
+
+pascal :: Integer -> [[Integer]] -- +++
+pascal n = [[line] | line <- [binom x k | x <- [1 .. n], k <- [1 .. n]]]
 
 -- 2.9
 intToChar :: Int -> Char
