@@ -42,21 +42,72 @@ primo n = length (divprop n) == 1
 binom :: Integer -> Integer -> Integer
 binom n k = product [1 .. n] `div` (product [1 .. k] * product [1 .. (n - k)])
 
-pascal :: Integer -> [[Integer]] -- +++
-pascal n = [[line] | line <- [binom x k | x <- [1 .. n], k <- [1 .. n]]]
+pascalAux :: Integer -> [Integer]
+pascalAux n = [binom n x | x <- [0 .. n]]
+
+pascal :: Integer -> [[Integer]]
+pascal n = [pascalAux y | y <- [0 .. n]]
 
 -- 2.9
 intToChar :: Int -> Char
-intToChar n = chr (n + ord 'A') -- CONVERTE INTEIRO PARA CHAR
+intToChar n = chr (n + ord 'A')
 
 charToInt :: Char -> Int
-charToInt c = ord c - ord 'A' -- CONVERTE CHAR INTEIRO
+charToInt c = ord c - ord 'A'
 
--- DESCOLA K POSICOES
 desloca :: Int -> Char -> Char
 desloca k x
   | isUpper x = intToChar ((charToInt x + k) `mod` 26)
   | otherwise = x
 
-cifra :: Int -> [Char] -> [Char]
+cifra :: Int -> String -> String
 cifra k s = [desloca k x | x <- s]
+
+-- 2.10 a)
+andR :: [Bool] -> Bool
+andR [] = True
+andR (x : xs) = x && andR xs
+
+-- 2.10 b)
+orR :: [Bool] -> Bool
+orR [] = False
+orR (x : xs) = x || orR xs
+
+-- 2.10 c)
+concatR :: [[a]] -> [a]
+concatR [] = []
+concatR ([] : ys) = concatR ys
+concatR ((x : xs) : ys) = x : concatR (xs : ys)
+
+-- 2.10 d)
+replicateR :: Int -> a -> [a]
+replicateR 0 x = []
+replicateR n x = x : replicateR (n -1) x
+
+-- 2.10 e)
+selectiR :: [a] -> Int -> a
+selectiR list 0 = head list
+selectiR list i = selectiR (tail list) (i -1)
+
+-- 2.10 f)
+elemR :: Eq a => [a] -> a -> Bool
+elemR [] _ = False
+elemR (x : xs) k = (k == x) || elemR xs k
+
+-- 2.11
+
+-- 2.12
+forte :: String -> Bool
+forte s = length s >= 8 && any isUpper s && any isLower s && any isNumber s
+
+forte1 :: String -> Bool
+forte1 s = length s >= 8 && or (forteCaps s) && or (forteLow s) && or (forteNum s)
+
+forteCaps :: String -> [Bool]
+forteCaps = map isUpper
+
+forteLow :: String -> [Bool]
+forteLow = map isLower
+
+forteNum :: String -> [Bool]
+forteNum = map isNumber
