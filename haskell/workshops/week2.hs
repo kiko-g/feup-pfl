@@ -111,3 +111,66 @@ forteLow = map isLower
 
 forteNum :: String -> [Bool]
 forteNum = map isNumber
+
+-- 2.13
+mindiv :: Int -> Int
+mindiv n = mindivAux n 2
+
+mindivAux :: Int -> Int -> Int
+mindivAux n d
+  | n `mod` d == 0 = d
+  | fromIntegral d > sqrt (fromIntegral n) = n
+  | otherwise = mindivAux n (d + 1)
+
+primo2 :: Int -> Bool
+primo2 n = mindiv n == n
+
+-- 2.14 +++
+nubR :: Eq a => [a] -> [a]
+nubR (x : xs) = x : filter (/= x) (nubR xs)
+nubR [] = []
+
+-- 2.15
+intersperse :: a -> [a] -> [a]
+intersperse _ [] = []
+intersperse _ [x] = [x]
+intersperse sep (x : xs) = x : sep : intersperse sep xs
+
+-- 2.16
+algarismos :: Int -> [Int]
+algarismos n = reverse (algarismosRev n)
+
+algarismosRev :: Int -> [Int]
+algarismosRev 0 = []
+algarismosRev n = n `mod` 10 : algarismosRev (n `div` 10)
+
+-- 2.17
+toBits :: Int -> [Int]
+toBits n = reverse (toBitsRev n)
+
+toBitsRev :: Int -> [Int]
+toBitsRev 0 = []
+toBitsRev n = n `mod` 2 : toBitsRev (n `div` 2)
+
+-- 2.18
+fromBits :: [Int] -> Int
+fromBits [] = 0
+fromBits (x : xs) = x * (2 ^ (length (x : xs) - 1)) + fromBits xs
+
+-- 2.19
+mdc :: Int -> Int -> Int
+mdc a b | b == 0 = a
+mdc a b = mdc b (a `mod` b)
+
+-- 2.20 a) +++
+insertR :: Ord a => a -> [a] -> [a]
+insertR e (x : xs) | e < x = e : x : xs
+insertR e (x : xs) | e >= x = insertR e xs
+
+-- 2.20 b)
+
+-- 2.21
+
+-- 2.22
+
+-- 2.23
