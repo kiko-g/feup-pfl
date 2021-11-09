@@ -125,10 +125,10 @@ mindivAux n d
 primo2 :: Int -> Bool
 primo2 n = mindiv n == n
 
--- 2.14 +++
+-- 2.14
 nubR :: Eq a => [a] -> [a]
-nubR (x : xs) = x : filter (/= x) (nubR xs)
 nubR [] = []
+nubR (x : xs) = x : nubR [a | a <- xs, a /= x]
 
 -- 2.15
 intersperse :: a -> [a] -> [a]
@@ -162,12 +162,17 @@ mdc :: Int -> Int -> Int
 mdc a b | b == 0 = a
 mdc a b = mdc b (a `mod` b)
 
--- 2.20 a) +++
+-- 2.20 a)
 insertR :: Ord a => a -> [a] -> [a]
-insertR e (x : xs) | e < x = e : x : xs
-insertR e (x : xs) | e >= x = insertR e xs
+insertR e [] = [e]
+insertR e (x : xs) | e < x = e : x : xs -- guard
+insertR e (x : xs) = x : insertR e xs   -- no guard (else)
 
 -- 2.20 b)
+isortR :: Ord a => [a] -> [a]
+isortR [] = []
+isortR [x] = [x]
+isortR (x : xs) = insertR x (isortR xs)
 
 -- 2.21
 
