@@ -8,7 +8,7 @@
 |   4   | Programação de ordem superior: map, filter, foldr, foldl. Composição de funções. Definição de novas funções por composição de funções (point-free programming).            |
 |   5   | Avaliação lazy versus avaliação estrita. Listas infinitas. Produtores e consumidores de listas infinitas. Exemplos de aplicação.                                           |
 |   6   | Data types. Sinónimos de tipo (type). Tipos algébricos (data). Exemplos de aplicação: manipulação de expressões aritméticas; árvores de procura (search trees).            |
-|   7   | -                                                                                                                                                                          |
+|   7   | Módulos. Implementações de tipos abstractos de dados usando módulos.                                                                                                       |
 |   8   | -                                                                                                                                                                          |
 |   9   | -                                                                                                                                                                          |
 |  10   | -                                                                                                                                                                          |

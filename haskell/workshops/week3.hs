@@ -37,14 +37,7 @@ reverseHR = foldr (\b c -> c ++ [b]) []
 reverseHL :: [a] -> [a]
 reverseHL = foldl (\b c -> c : b) []
 
--- 3.8
-words' :: String -> [String]
-words' [] = []
-words' (x : xs)
-  | x == ' ' = words' xs
-  | otherwise = ys : words' rest
-  where
-    (ys, rest) = break (== ' ') (x : xs)
 
--- palavras :: String -> [String]
--- palavras str 
+-- 3.8
+palavras :: String -> [String]
+palavras str = [str, "aaa" ++ str]
