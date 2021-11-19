@@ -13,8 +13,8 @@ fibLista n = (list !! (n -1)) + (list !! (n -2))
     list = map fibLista [0 .. n]
 
 -- 1.3
-fibAux :: [Int]
-fibAux = 0 : 1 : [a + b | (a, b) <- zip fibAux (tail fibAux)]
+fibInfinitosAux :: [Int]
+fibInfinitosAux = 0 : 1 : zipWith (+) (tail fibInfinitosAux) fibInfinitosAux
 
-fibListaInfinita :: Int -> [Int]
-fibListaInfinita n = take (n + 1) fibAux
+fibListaInfinita :: Int -> Int
+fibListaInfinita n = last (take (n + 1) fibInfinitosAux)
