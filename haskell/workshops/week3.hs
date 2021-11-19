@@ -70,3 +70,5 @@ palavrasAux l str = palavrasAux (word : l) (if length rest > 0 then tail rest el
 -- 3.8 b)
 despalavras :: [String] -> String
 despalavras l = drop 1 (foldr (\word acc -> ' ' : (word ++ acc)) "" l)
+
+
