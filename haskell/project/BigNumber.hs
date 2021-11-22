@@ -13,6 +13,7 @@ output :: BigNumber -> String
 output = concatMap show
 
 -- 2.4 +++ need to fix carry for sum/sub
+-- fill number with left hand zeros so that BigNumbers can have same length
 padLeftZeros :: BigNumber -> Int -> BigNumber
 padLeftZeros (x : xs) n
   | x < 0 = x : padLeftZeros xs n
@@ -20,15 +21,17 @@ padLeftZeros x n
   | length x < n = padLeftZeros (0 : x) n
   | otherwise = x
 
+-- fix sum carry out
 carrySum :: BigNumber -> BigNumber
 carrySum [] = []
 carrySum [a]
-  | a > 9 = 1 : [a-10]
+  | a > 9 = (a-10) : [1]
   | otherwise = a : carrySum []
 carrySum (a:b:rest)
   | a > 9 = a-10 : carrySum (b+1 : rest)
   | otherwise = a : carrySum (b : rest)
 
+-- numbers need to have the same length, so we pad them with zeros if need be
 somaBNResult :: BigNumber -> BigNumber -> BigNumber
 somaBNResult x y
   | length x == length y = zipWith (+) x y
@@ -36,7 +39,7 @@ somaBNResult x y
   | otherwise = zipWith (+) (padLeftZeros x (length y)) y
 
 somaBN :: BigNumber -> BigNumber -> BigNumber
-somaBN x y = carrySum (somaBNResult x y)
+somaBN x y = reverse (carrySum (reverse (somaBNResult x y)))
 
 
 -- 2.5
