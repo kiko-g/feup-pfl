@@ -20,11 +20,24 @@ padLeftZeros x n
   | length x < n = padLeftZeros (0 : x) n
   | otherwise = x
 
-somaBN :: BigNumber -> BigNumber -> BigNumber
-somaBN x y
+carrySum :: BigNumber -> BigNumber
+carrySum [] = []
+carrySum [a]
+  | a > 9 = 1 : [a-10]
+  | otherwise = a : carrySum []
+carrySum (a:b:rest)
+  | a > 9 = a-10 : carrySum (b+1 : rest)
+  | otherwise = a : carrySum (b : rest)
+
+somaBNResult :: BigNumber -> BigNumber -> BigNumber
+somaBNResult x y
   | length x == length y = zipWith (+) x y
   | length x > length y = zipWith (+) x (padLeftZeros y (length x))
   | otherwise = zipWith (+) (padLeftZeros x (length y)) y
+
+somaBN :: BigNumber -> BigNumber -> BigNumber
+somaBN x y = carrySum (somaBNResult x y)
+
 
 -- 2.5
 subBN :: BigNumber -> BigNumber -> BigNumber
@@ -48,13 +61,13 @@ padMulDivAux (x : xs) i = padMulDivAux xs (i + 1) ++ [x * 10 ^ i]
 padMulDiv :: BigNumber -> BigNumber
 padMulDiv bn = padMulDivAux (reverse bn) 0
 
-mulBNAux1 :: BigNumber -> BigNumber -> BigNumber
-mulBNAux1 [] _ = []
-mulBNAux1 _ [] = []
-mulBNAux1 xs (y : ys) = somaBN (algarismos (sum (zipWith (*) (replicate (length xs) y) xs))) (mulBNAux1 xs ys)
+mulCycle :: BigNumber -> BigNumber -> BigNumber
+mulCycle [] _ = []
+mulCycle _ [] = []
+mulCycle xs (y : ys) = somaBN (algarismos (sum (zipWith (*) (replicate (length xs) y) xs))) (mulCycle xs ys)
 
 mulBN :: BigNumber -> BigNumber -> BigNumber
-mulBN x y = mulBNAux1 (padMulDiv x) (padMulDiv y)
+mulBN x y = mulCycle (padMulDiv x) (padMulDiv y)
 
 -- 2.7
 -- divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
