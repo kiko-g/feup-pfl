@@ -5,7 +5,7 @@ type BigNumber = [Int]
 
 -- 2.2
 scanner :: String -> BigNumber
-scanner ('-' : c : cs) = -read [c] : scanner cs
+scanner ('-' : c : cs) = - read [c] : scanner cs
 scanner str = map (\c -> read [c :: Char] :: Int) str
 
 -- 2.3
@@ -14,11 +14,10 @@ output = concatMap show
 
 -- 2.4
 pad :: BigNumber -> Int -> BigNumber
-pad (x:xs) n
+pad (x : xs) n
   | x < 0 = x : pad xs n
-
 pad x n
-  | length x < n = pad (0:x) n
+  | length x < n = pad (0 : x) n
   | otherwise = x
 
 somaBN :: BigNumber -> BigNumber -> BigNumber
@@ -28,7 +27,11 @@ somaBN x y
   | otherwise = zipWith (+) (pad x (length y)) y
 
 -- 2.5
--- subBN :: BigNumber -> BigNumber -> BigNumber
+subBN :: BigNumber -> BigNumber -> BigNumber
+subBN x y
+  | length x == length y = zipWith (-) x y
+  | length x > length y = zipWith (-) x (pad y (length x))
+  | otherwise = zipWith (-) (pad x (length y)) y
 
 -- 2.6
 -- mulBN :: BigNumber -> BigNumber -> BigNumber
