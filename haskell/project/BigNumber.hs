@@ -13,7 +13,19 @@ output :: BigNumber -> String
 output = concatMap show
 
 -- 2.4
--- somaBN :: BigNumber -> BigNumber -> BigNumber
+pad :: BigNumber -> Int -> BigNumber
+pad (x:xs) n
+  | x < 0 = x : pad xs n
+
+pad x n
+  | length x < n = pad (0:x) n
+  | otherwise = x
+
+somaBN :: BigNumber -> BigNumber -> BigNumber
+somaBN x y
+  | length x == length y = zipWith (+) x y
+  | length x > length y = zipWith (+) x (pad y (length x))
+  | otherwise = zipWith (+) (pad x (length y)) y
 
 -- 2.5
 -- subBN :: BigNumber -> BigNumber -> BigNumber
