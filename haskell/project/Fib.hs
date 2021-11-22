@@ -1,3 +1,4 @@
+import BigNumber
 -- 1.1
 fibRec :: (Integral a) => a -> a
 fibRec 0 = 0
@@ -18,3 +19,9 @@ fibInfinitosAux = 0 : 1 : zipWith (+) (tail fibInfinitosAux) fibInfinitosAux
 
 fibListaInfinita :: Int -> Int
 fibListaInfinita n = last (take (n + 1) fibInfinitosAux)
+
+-- 3
+fibRecBN :: BigNumber -> BigNumber
+fibRecBN [0] = [0]
+fibRecBN [1] = [1]
+fibRecBN bn = somaBN (fibRecBN (subBN bn [2])) (fibRecBN (subBN bn [1]))
