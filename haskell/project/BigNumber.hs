@@ -12,7 +12,7 @@ scanner str = map (\c -> read [c :: Char] :: Int) str
 output :: BigNumber -> String
 output = concatMap show
 
--- 2.4 +++ need to fix carry for sum/sub
+-- 2.4 +++ fix negative numbers
 -- fill number with left hand zeros so that BigNumbers can have same length
 padLeftZeros :: BigNumber -> Int -> BigNumber
 padLeftZeros (x : xs) n
@@ -22,14 +22,17 @@ padLeftZeros x n
   | otherwise = x
 
 -- fix sum carry out
+carrySumRev :: BigNumber -> BigNumber
+carrySumRev [] = []
+carrySumRev [a]
+  | a > 9 = (a -10) : [1]
+  | otherwise = a : carrySumRev []
+carrySumRev (a : b : rest)
+  | a > 9 = a -10 : carrySumRev (b + 1 : rest)
+  | otherwise = a : carrySumRev (b : rest)
+
 carrySum :: BigNumber -> BigNumber
-carrySum [] = []
-carrySum [a]
-  | a > 9 = (a-10) : [1]
-  | otherwise = a : carrySum []
-carrySum (a:b:rest)
-  | a > 9 = a-10 : carrySum (b+1 : rest)
-  | otherwise = a : carrySum (b : rest)
+carrySum bn = reverse (carrySumRev (reverse bn))
 
 -- numbers need to have the same length, so we pad them with zeros if need be
 somaBNResult :: BigNumber -> BigNumber -> BigNumber
@@ -39,10 +42,9 @@ somaBNResult x y
   | otherwise = zipWith (+) (padLeftZeros x (length y)) y
 
 somaBN :: BigNumber -> BigNumber -> BigNumber
-somaBN x y = reverse (carrySum (reverse (somaBNResult x y)))
+somaBN x y = carrySum (somaBNResult x y)
 
-
--- 2.5
+-- 2.5 +++ fix negative numbers
 subBN :: BigNumber -> BigNumber -> BigNumber
 subBN x y
   | length x == length y = zipWith (-) x y
@@ -50,13 +52,15 @@ subBN x y
   | otherwise = zipWith (-) (padLeftZeros x (length y)) y
 
 -- 2.6
-algarismos :: Int -> BigNumber
-algarismos n = reverse (algarismosRev n)
+-- get integer as list
+intToList :: Int -> BigNumber
+intToList n = reverse (intToListRev n)
 
-algarismosRev :: Int -> BigNumber
-algarismosRev 0 = []
-algarismosRev n = n `mod` 10 : algarismosRev (n `div` 10)
+intToListRev :: Int -> BigNumber
+intToListRev 0 = []
+intToListRev n = n `mod` 10 : intToListRev (n `div` 10)
 
+--
 padMulDivAux :: BigNumber -> Int -> BigNumber
 padMulDivAux [] _ = []
 padMulDivAux (x : xs) i = padMulDivAux xs (i + 1) ++ [x * 10 ^ i]
@@ -67,7 +71,7 @@ padMulDiv bn = padMulDivAux (reverse bn) 0
 mulCycle :: BigNumber -> BigNumber -> BigNumber
 mulCycle [] _ = []
 mulCycle _ [] = []
-mulCycle xs (y : ys) = somaBN (algarismos (sum (zipWith (*) (replicate (length xs) y) xs))) (mulCycle xs ys)
+mulCycle xs (y : ys) = somaBN (intToList (sum (zipWith (*) (replicate (length xs) y) xs))) (mulCycle xs ys)
 
 mulBN :: BigNumber -> BigNumber -> BigNumber
 mulBN x y = mulCycle (padMulDiv x) (padMulDiv y)
