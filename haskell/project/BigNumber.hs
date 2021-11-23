@@ -5,17 +5,18 @@ type BigNumber = [Int]
 
 ------------------------ 2.2 ------------------------
 removeLeftZeros :: String -> String
-removeLeftZeros ('-' : '0' : ss) = removeLeftZeros ss
+removeLeftZeros ('-' : '0' : ss) = removeLeftZeros ('-' : ss)
 removeLeftZeros ('0' : ss) = removeLeftZeros ss
-removeLeftZeros ('-' : ss) = removeLeftZeros ss
 removeLeftZeros str = str
 
 scanner :: String -> BigNumber
+scanner ('-' : '0' : cs) = scanner ('-' : removeLeftZeros ('0' : cs))
+scanner ('-' : c : cs) = - read [c] : scanner cs
 scanner str = map (\c -> read [c :: Char] :: Int) (removeLeftZeros str)
 
 ------------------------ 2.3 ------------------------
 output :: BigNumber -> String
-output str = removeLeftZeros (concatMap show str)
+output bn = removeLeftZeros (concatMap show bn)
 
 ------------------------ 2.4 ------------------------
 -- fill number with left hand zeros so that BigNumbers can have same length

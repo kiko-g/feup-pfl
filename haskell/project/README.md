@@ -79,10 +79,9 @@ scanner "12345678901234567890"
 output :: BigNumber -> String
 ```
 ```haskell
-output [1,2,3,4]
+output [1,2,3,4] -- or output (scanner "1234")
 output [-1,2,3,4]
 output [0,0,0,1,2,3,4]
-output [-0,0,0,1,2,3,4]
 output [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0]
 ```
 
