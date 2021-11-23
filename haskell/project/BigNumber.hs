@@ -1,22 +1,22 @@
 module BigNumber where
 
--- 2.1 type
+------------ 2.1 type ------------
 type BigNumber = [Int]
 
--- 2.2 scanner
+------------ 2.2 scanner ------------
 scanner :: String -> BigNumber
 scanner ('-' : c : cs) = - read [c] : scanner cs
 scanner str = map (\c -> read [c :: Char] :: Int) str
 
--- 2.3 output
+------------ 2.3 output ------------
 output :: BigNumber -> String
 output = concatMap show
 
--- 2.4 soma
+------------ 2.4 soma ------------
 -- fill number with left hand zeros so that BigNumbers can have same length
 padLeftZeros :: BigNumber -> Int -> BigNumber
 padLeftZeros (x : xs) n
-  | x < 0 = x : padLeftZeros xs n
+  | x < 0 = padLeftZeros xs (n - 1) ++ [x]
 padLeftZeros x n
   | length x < n = padLeftZeros (0 : x) n
   | otherwise = x
@@ -38,10 +38,10 @@ changeSign (x : xs) = - x : xs
 carrySumRev :: BigNumber -> BigNumber
 carrySumRev [] = []
 carrySumRev [a]
-  | a > 9 = (a -10) : [1]
+  | a > 9 = (a - 10) : [1]
   | otherwise = a : carrySumRev []
 carrySumRev (a : b : rest)
-  | a > 9 = a -10 : carrySumRev (b + 1 : rest)
+  | a > 9 = a - 10 : carrySumRev (b + 1 : rest)
   | otherwise = a : carrySumRev (b : rest)
 
 carrySum :: BigNumber -> BigNumber
@@ -64,7 +64,7 @@ somaBN (x : xs) (y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = subBN (y : ys) (- x : xs)
   | otherwise = changeSign (carrySum (somaBNResult (- x : xs) (- y : ys)))
 
--- 2.5 sub
+------------ 2.5 sub ------------
 carrySubRev :: BigNumber -> BigNumber
 carrySubRev [] = []
 carrySubRev [a]
@@ -95,16 +95,8 @@ subBN (x : xs) (y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = changeSign (somaBN (y : ys) (- x : xs))
   | otherwise = changeSign (carrySub (subBNResult (- x : xs) (- y : ys)))
 
--- 2.6 mul
--- get integer as list
--- intToList :: Int -> BigNumber
--- intToList n = reverse (intToListRev n)
-
--- intToListRev :: Int -> BigNumber
--- intToListRev 0 = []
--- intToListRev n = n `mod` 10 : intToListRev (n `div` 10)
-
--- every number gets multiplied by 10*i :: [1,2,3] becomes [100,20,3]
+------------ 2.6 mul ------------
+-- muliply every digit by 10^i :: [1,2,3] becomes [100,20,3]
 padMulDivAux :: BigNumber -> Int -> BigNumber
 padMulDivAux [] _ = []
 padMulDivAux (x : xs) i = padMulDivAux xs (i + 1) ++ [x * 10 ^ i]
@@ -112,13 +104,16 @@ padMulDivAux (x : xs) i = padMulDivAux xs (i + 1) ++ [x * 10 ^ i]
 padMulDiv :: BigNumber -> BigNumber
 padMulDiv bn = padMulDivAux (reverse bn) 0
 
+-- multiply every x by every y (after padding) and summing the result recursively
+-- to make use of zipWith, y is replicated to match length of xs :: 222 * 3 = zipWith (*) [200, 20, 2] [3,3,3]
 mulCycle :: BigNumber -> BigNumber -> BigNumber
 mulCycle [] _ = []
 mulCycle _ [] = []
-mulCycle xs (y : ys) = somaBN (scanner (output [sum (zipWith (*) (replicate (length xs) y) xs)])) (mulCycle xs ys) -- maybe use intToList
+mulCycle xs (y : ys) = somaBN (scanner (output [sum (zipWith (*) (replicate (length xs) y) xs)])) (mulCycle xs ys)
 
 mulBN :: BigNumber -> BigNumber -> BigNumber
 mulBN x y = mulCycle (padMulDiv x) (padMulDiv y)
 
--- 2.7
+------------ 2.7 ------------
 -- divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
+-- divBN x y
