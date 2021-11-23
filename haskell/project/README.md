@@ -163,8 +163,6 @@ safeDivBN :: BigNumber -> BigNumber -> Maybe (BigNumber, BigNumber)
 --
 ```
 
-##
-
 ## Estratégias
 
 1. Definir o novo tipo como uma lista de inteiros: `type BigNumber = [Int]`
@@ -179,6 +177,8 @@ safeDivBN :: BigNumber -> BigNumber -> Maybe (BigNumber, BigNumber)
 ## Resposta à alínea 4
 
 > Compare as resoluções das alíneas 1 e 3 com tipos `(Int -> Int)`, `(Integer -> Integer)` e `(BigNumber -> BigNumber)`, comparando a sua aplicação a números grandes e verificando qual o maior número que cada uma aceita como argumento.
+
+...
 
 ## Documentação de funções auxiliares
 

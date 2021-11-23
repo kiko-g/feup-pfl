@@ -1,18 +1,18 @@
 module BigNumber where
 
------------- 2.1 type ------------
+------------------------ 2.1 ------------------------
 type BigNumber = [Int]
 
------------- 2.2 scanner ------------
+------------------------ 2.2 ------------------------
 scanner :: String -> BigNumber
 scanner ('-' : c : cs) = - read [c] : scanner cs
 scanner str = map (\c -> read [c :: Char] :: Int) str
 
------------- 2.3 output ------------
+------------------------ 2.3 ------------------------
 output :: BigNumber -> String
 output = concatMap show
 
------------- 2.4 soma ------------
+------------------------ 2.4 ------------------------
 -- fill number with left hand zeros so that BigNumbers can have same length
 padLeftZeros :: BigNumber -> Int -> BigNumber
 padLeftZeros (x : xs) n
@@ -21,21 +21,17 @@ padLeftZeros x n
   | length x < n = padLeftZeros (0 : x) n
   | otherwise = x
 
--- check if big number is negative
-isPositive :: BigNumber -> Bool
+isPositive :: BigNumber -> Bool -- check if big number is negative
 isPositive bn = head bn >= 0
 
--- check if big number is positive
-isNegative :: BigNumber -> Bool
+isNegative :: BigNumber -> Bool -- check if big number is positive
 isNegative bn = head bn < 0
 
--- change sign of big number
-changeSign :: BigNumber -> BigNumber
+changeSign :: BigNumber -> BigNumber -- change sign of big number
 changeSign [] = []
 changeSign (x : xs) = - x : xs
 
--- fix sum carry out
-carrySumRev :: BigNumber -> BigNumber
+carrySumRev :: BigNumber -> BigNumber -- fix sum carry out +++
 carrySumRev [] = []
 carrySumRev [a]
   | a > 9 = (a - 10) : [1]
@@ -64,8 +60,8 @@ somaBN (x : xs) (y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = subBN (y : ys) (- x : xs)
   | otherwise = changeSign (carrySum (somaBNResult (- x : xs) (- y : ys)))
 
------------- 2.5 sub ------------
-carrySubRev :: BigNumber -> BigNumber
+------------------------ 2.5 ------------------------
+carrySubRev :: BigNumber -> BigNumber -- fix sub carry out +++
 carrySubRev [] = []
 carrySubRev [a]
   | a > 9 = (a - 10) : [1]
@@ -95,7 +91,7 @@ subBN (x : xs) (y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = changeSign (somaBN (y : ys) (- x : xs))
   | otherwise = changeSign (carrySub (subBNResult (- x : xs) (- y : ys)))
 
------------- 2.6 mul ------------
+------------------------ 2.6 ------------------------
 -- muliply every digit by 10^i :: [1,2,3] becomes [100,20,3]
 padMulDivAux :: BigNumber -> Int -> BigNumber
 padMulDivAux [] _ = []
@@ -114,6 +110,6 @@ mulCycle xs (y : ys) = somaBN (scanner (output [sum (zipWith (*) (replicate (len
 mulBN :: BigNumber -> BigNumber -> BigNumber
 mulBN x y = mulCycle (padMulDiv x) (padMulDiv y)
 
------------- 2.7 ------------
--- divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
--- divBN x y
+------------------------ 2.7 ------------------------
+divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
+divBN x y = ([0], [0])

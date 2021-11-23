@@ -21,25 +21,26 @@ fibInfinitosAux = 0 : 1 : zipWith (+) (tail fibInfinitosAux) fibInfinitosAux
 fibListaInfinita :: Int -> Int
 fibListaInfinita n = last (take (n + 1) fibInfinitosAux)
 
------------- 3 ------------
+------------ 3.1 ------------
 fibRecBN :: BigNumber -> BigNumber
 fibRecBN [0] = [0]
 fibRecBN [1] = [1]
 fibRecBN bn = somaBN (fibRecBN (subBN bn [2])) (fibRecBN (subBN bn [1]))
 
--- redefine !! operator for big numbers
-nthBN :: [BigNumber] -> BigNumber -> BigNumber
+nthBN :: [BigNumber] -> BigNumber -> BigNumber -- redefine !! operator for BigNumber
 nthBN [] _ = []
 nthBN (x : xs) [0] = x
 nthBN (x : xs) index = nthBN xs (subBN index [1])
 
+------------ 3.2 ------------
 fibListaBN :: BigNumber -> BigNumber
 fibListaBN [0] = [0]
 fibListaBN [1] = [1]
 fibListaBN bn = somaBN (nthBN list (subBN bn [2])) (nthBN list (subBN bn [1]))
   where
-    list = [fibListaBN [x] | x <- [0 .. ]]
+    list = [fibListaBN [x] | x <- [0 ..]] -- +++ isto é valido?
 
+------------ 3.3 ------------
 fibInfinitosAuxBN :: [BigNumber]
 fibInfinitosAuxBN = [0] : [1] : zipWith somaBN fibInfinitosAuxBN (tail fibInfinitosAuxBN)
 
