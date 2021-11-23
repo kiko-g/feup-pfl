@@ -4,13 +4,18 @@ module BigNumber where
 type BigNumber = [Int]
 
 ------------------------ 2.2 ------------------------
+removeLeftZeros :: String -> String
+removeLeftZeros ('-' : '0' : ss) = removeLeftZeros ss
+removeLeftZeros ('0' : ss) = removeLeftZeros ss
+removeLeftZeros ('-' : ss) = removeLeftZeros ss
+removeLeftZeros str = str
+
 scanner :: String -> BigNumber
-scanner ('-' : c : cs) = - read [c] : scanner cs
-scanner str = map (\c -> read [c :: Char] :: Int) str
+scanner str = map (\c -> read [c :: Char] :: Int) (removeLeftZeros str)
 
 ------------------------ 2.3 ------------------------
 output :: BigNumber -> String
-output = concatMap show
+output str = removeLeftZeros (concatMap show str)
 
 ------------------------ 2.4 ------------------------
 -- fill number with left hand zeros so that BigNumbers can have same length
