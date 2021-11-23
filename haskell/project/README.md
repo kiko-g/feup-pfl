@@ -1,166 +1,171 @@
 # Haskell Project
 
-## Casos de Teste
+## Documentação e casos de teste
+
+Esta secção segue o seguinte formato:
+
+#### FunctionName
+```haskell
+functionName :: type -- id
+```
+```
+testcase 1
+testcase 2
+testcase 3
+...
+```
+
+Descrição do funcionamento do predicado.
+
+
+---
+
+#### FibRec
 
 ```haskell
--- 1.1
-fibRec :: (Integral a) => a -> a
-
+fibRec :: (Integral a) => a -> a -- 1.1
+```
+```
 fibRec 5
 fibRec 10
 fibRec 15
 ```
 
-```haskell
--- 1.2
-fibLista :: Int -> Int
+Parte dos casos base `fibRec 0 = 0` e `fibRec 1 = 1` e recursivamente soma os pares fibonacci `(n-2)` e `(n-1)`
 
+
+#### FibLista
+
+```haskell
+fibLista :: Int -> Int -- 1.2
+```
+```
 fibLista 5
 fibLista 10
 fibLista 15
 ```
 
-```haskell
--- 1.3
-fibListaInfinita :: Int -> Int
+Parte dos casos base `fibRec 0 = 0` e `fibRec 1 = 1` e soma os pares fibonacci `(n-2)` e `(n-1)`, usando os elementos `n-2` e `n-1` da lista de fibonacci de `0` até `n`
 
+#### FibListaInfinita
+
+```haskell
+fibListaInfinita :: Int -> Int
+```
+```
 fibListaInfinita 5
 fibListaInfinita 10
 fibListaInfinita 15
 ```
+Este predicado usa uma função auxiliar *fibInfinitosAux* que cria uma lista infinita de números fibonacci, através do zip recursivo de duas listas de fibonacci infinitas desfasadas por 1 casa (lista e tail (lista))
 
-```haskell
--- 2.2
-scanner :: String -> BigNumber
 
-```
-
-```haskell
--- 2.3
-output :: BigNumber -> String
-
-```
-
-```haskell
--- 2.4
-somaBN :: BigNumber -> BigNumber -> BigNumber
-
-```
-
-```haskell
--- 2.5
-subBN :: BigNumber -> BigNumber -> BigNumber
-
-```
-
-```haskell
--- 2.6
-mulBN :: BigNumber -> BigNumber -> BigNumber
-
-```
-
-```haskell
--- 2.7
-divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
-
-```
-
-```haskell
--- 3 a)
-fibRecBN :: BigNumber -> BigNumber
-
-```
-
-```haskell
--- 3 b)
-fibListaBN :: BigNumber -> BigNumber
-
-```
-
-```haskell
--- 3 c)
-fibListaInfinitaBN :: BigNumber -> BigNumber
-
-```
-
-## Documentação
-
-```haskell
-fibRec :: (Integral a) => a -> a
-
---
-```
-
-```haskell
-fibLista :: Int -> Int
-
---
-```
-
-```haskell
-fibListaInfinita :: Int -> Int
-
---
-```
+#### Scanner
 
 ```haskell
 scanner :: String -> BigNumber
-
---
 ```
+```haskell
+scanner "1234"
+scanner "-1234"
+scanner "0001234"
+scanner "-0001234"
+scanner "12345678901234567890"
+```
+
+#### Output
 
 ```haskell
 output :: BigNumber -> String
-
---
 ```
+```haskell
+output [1,2,3,4]
+output [-1,2,3,4]
+output [0,0,0,1,2,3,4]
+output [-0,0,0,1,2,3,4]
+output [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0]
+```
+
+#### SomaBN
 
 ```haskell
 somaBN :: BigNumber -> BigNumber -> BigNumber
-
---
 ```
+```
+
+```
+
+#### SubBN
 
 ```haskell
 subBN :: BigNumber -> BigNumber -> BigNumber
-
---
 ```
+```haskell
+
+```
+
+#### MulBN
 
 ```haskell
 mulBN :: BigNumber -> BigNumber -> BigNumber
-
---
 ```
+```haskell
+
+```
+
+#### DivBN
 
 ```haskell
 divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
-
---
 ```
+```haskell
+
+```
+
+
+#### FibRecBN
 
 ```haskell
 fibRecBN :: BigNumber -> BigNumber
-
---
 ```
+```haskell
+fibRecBN [5]
+fibRecBN [10]
+fibRecBN [15]
+```
+
+#### FibListaBN
 
 ```haskell
 fibListaBN :: BigNumber -> BigNumber
-
---
 ```
+```haskell
+fibListaBN [5]
+fibListaBN [10]
+fibListaBN [15]
+```
+
+Usa uma função nova nthBN para substituir o operador !! nos BigNumbers e faz uso
+
+#### FibListaInfinitaBN
 
 ```haskell
 fibListaInfinitaBN :: BigNumber -> BigNumber
-
---
 ```
+```haskell
+fibListaInfinitaBN [5]
+fibListaInfinitaBN [10]
+fibListaInfinitaBN [15]
+```
+
+
+#### SafeDivBN
 
 ```haskell
 safeDivBN :: BigNumber -> BigNumber -> Maybe (BigNumber, BigNumber)
+```
+```haskell
 
---
 ```
 
 ## Estratégias
@@ -186,5 +191,5 @@ safeDivBN :: BigNumber -> BigNumber -> Maybe (BigNumber, BigNumber)
 fibInfinitosAux :: [Int]
 fibInfinitosAux = 0 : 1 : zipWith (+) (tail fibInfinitosAux) fibInfinitosAux
 
--- Cria uma lista infinita de números fibonacci, através do zip recursivo de duas listas desfazadas por 1 casa
+-- Cria uma lista infinita de números fibonacci, através do zip recursivo de duas listas de fibonacci desfasadas por 1 casa
 ```
