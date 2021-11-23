@@ -1,5 +1,9 @@
 # Haskell Project
 
+## TODO
+
+- Em `somaBNResult` acrescentar `removeLeftZerosBN`
+
 ## Documentação e casos de teste
 
 Esta secção segue o seguinte formato:
@@ -90,8 +94,16 @@ output [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0]
 ```haskell
 somaBN :: BigNumber -> BigNumber -> BigNumber
 ```
-```
+```haskell
+somaBN (scanner "123") (scanner "123")     -- 246
+somaBN (scanner "123") (scanner "246")     -- 369
+somaBN (scanner "123") (scanner "987")     -- 1110
 
+somaBN (scanner "123") (scanner "-33")     -- 90
+somaBN (scanner "123") (scanner "-133")    -- -10
+
+somaBN (scanner "-123") (scanner "33")     -- -90
+somaBN (scanner "-123") (scanner "133")    -- 10
 ```
 
 #### SubBN
