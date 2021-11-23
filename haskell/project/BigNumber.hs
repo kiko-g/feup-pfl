@@ -94,8 +94,8 @@ subBN [] ys = ys
 subBN (x : xs) (y : ys)
   | isPositive (x : xs) && isPositive (y : ys) = carrySub (subBNResult (x : xs) (y : ys))
   | isPositive (x : xs) && isNegative (y : ys) = somaBN (x : xs) (- y : ys)
-  | isNegative (x : xs) && isPositive (y : ys) = changeSign (somaBN (y : ys) (- x : xs))
-  | otherwise = changeSign (carrySub (subBNResult (- x : xs) (- y : ys)))
+  | isNegative (x : xs) && isPositive (y : ys) = changeSign (somaBN (- x : xs) (y : ys))
+  | otherwise = carrySub (subBNResult  (- y : ys) (- x : xs))
 
 ------------------------ 2.6 ------------------------
 -- muliply every digit by 10^i :: [1,2,3] becomes [100,20,3]
