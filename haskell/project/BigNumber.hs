@@ -67,19 +67,15 @@ somaBN (x : xs) (y : ys)
   | otherwise = changeSign (carrySum (somaBNResult (- x : xs) (- y : ys)))
 
 ------------------------ 2.5 ------------------------
-carrySubRev :: BigNumber -> BigNumber -- fix sub carry out +++
-carrySubRev [] = []
-carrySubRev [a] = [a]
-carrySubRev (a : b : rest)
-  | a < 0 = a + 10 : carrySubRev (b - 1 : rest)
-  | otherwise = a : carrySubRev (b : rest)
-
-carrySub :: BigNumber -> BigNumber
-carrySub bn = reverse (carrySubRev (reverse bn))
+dealWithDraw :: BigNumber -> BigNumber -> BigNumber
+dealWithDraw x [] = x
+dealWithDraw [] y = y
+dealWithDraw (x:xs) (y:ys) | x >= y = zipWith (-) (x:xs) (y:ys)
+dealWithDraw (x:xs) (y:ys) = changeSign (zipWith (-) (y:ys) (x:xs))
 
 subBNResult :: BigNumber -> BigNumber -> BigNumber
 subBNResult x y
-  | length x == length y = zipWith (-) x y
+  | length x == length y = dealWithDraw x y
   | length x > length y = zipWith (-) x (padLeftZeros y (length x))
   | otherwise = zipWith (-) (padLeftZeros x (length y)) y
 
@@ -88,10 +84,10 @@ subBN [] [] = []
 subBN xs [] = xs
 subBN [] ys = ys
 subBN (x : xs) (y : ys)
-  | isPositive (x : xs) && isPositive (y : ys) = carrySub (subBNResult (x : xs) (y : ys))
+  | isPositive (x : xs) && isPositive (y : ys) = subBNResult (x : xs) (y : ys)
   | isPositive (x : xs) && isNegative (y : ys) = somaBN (x : xs) (- y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = changeSign (somaBN (- x : xs) (y : ys))
-  | otherwise = carrySub (subBNResult  (- y : ys) (- x : xs))
+  | otherwise = subBNResult  (- y : ys) (- x : xs)
 
 ------------------------ 2.6 ------------------------
 -- muliply every digit by 10^i :: [1,2,3] becomes [100,20,3]
