@@ -10,7 +10,7 @@ fibRec n = fibRec (n - 2) + fibRec (n - 1)
 fibLista :: Int -> Int
 fibLista 0 = 0
 fibLista 1 = 1
-fibLista n = (list !! (n - 1)) + (list !! (n - 2))
+fibLista n = (list !! (n - 2)) + (list !! (n - 1))
   where
     list = map fibLista [0 .. n]
 
@@ -38,7 +38,7 @@ fibListaBN [0] = [0]
 fibListaBN [1] = [1]
 fibListaBN bn = somaBN (nthBN list (subBN bn [2])) (nthBN list (subBN bn [1]))
   where
-    list = [fibListaBN [x] | x <- [0 ..]] -- +++ isto é valido?
+    list = [fibListaBN [x] | x <- [0 ..]]
 
 ------------ 3.3 ------------
 fibInfinitosAuxBN :: [BigNumber]
