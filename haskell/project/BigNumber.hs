@@ -37,7 +37,7 @@ changeSign :: BigNumber -> BigNumber -- change sign of big number
 changeSign [] = []
 changeSign (x : xs) = - x : xs
 
-carrySumRev :: BigNumber -> BigNumber -- fix sum carry out +++
+carrySumRev :: BigNumber -> BigNumber
 carrySumRev [] = []
 carrySumRev [a]
   | a > 9 = (a - 10) : [1]
@@ -69,12 +69,8 @@ somaBN (x : xs) (y : ys)
 ------------------------ 2.5 ------------------------
 carrySubRev :: BigNumber -> BigNumber -- fix sub carry out +++
 carrySubRev [] = []
-carrySubRev [a]
-  | a > 9 = (a - 10) : [1]
-  | otherwise = a : carrySubRev []
+carrySubRev [a] = [a]
 carrySubRev (a : b : rest)
-  | a > 9 = a - 10 : carrySubRev (b + 1 : rest)
-  | (a < 0) && ((b - 1) == 0) = a + 10 : carrySubRev rest
   | a < 0 = a + 10 : carrySubRev (b - 1 : rest)
   | otherwise = a : carrySubRev (b : rest)
 
