@@ -3,23 +3,21 @@ module BigNumber where
 ------------------------ 2.1 ------------------------
 type BigNumber = [Int]
 
------------------------- 2.2 ------------------------
+-----------------------------------------------------
+---------------- Auxiliar functions -----------------
+-----------------------------------------------------
+-- remove left hand zeros in string
 removeLeftZeros :: String -> String
 removeLeftZeros ('-' : '0' : ss) = removeLeftZeros ('-' : ss)
 removeLeftZeros ('0' : ss) = removeLeftZeros ss
 removeLeftZeros str = str
 
-scanner :: String -> BigNumber
-scanner ('-' : '0' : cs) = scanner ('-' : removeLeftZeros ('0' : cs))
-scanner ('-' : c : cs) = - read [c] : map (\c -> read [c :: Char] :: Int) cs
-scanner str = map (\c -> read [c :: Char] :: Int) (removeLeftZeros str)
+-- remove left hand zeros in BN
+removeLeftZerosBN :: BigNumber -> BigNumber
+removeLeftZerosBN (0 : xs) = xs
+removeLeftZerosBN bn = bn
 
------------------------- 2.3 ------------------------
-output :: BigNumber -> String
-output bn = removeLeftZeros (concatMap show bn)
-
------------------------- 2.4 ------------------------
--- fill number with left hand zeros until length is n (used so that BigNumbers can have same length)
+-- add hand zeros to a BN until length == n (used so that BigNumbers can have same length)
 padLeftZeros :: BigNumber -> Int -> BigNumber
 padLeftZeros x n
   | length x < n = padLeftZeros (0 : x) n
@@ -36,12 +34,64 @@ isNegative bn = head bn < 0
 -- change sign of big number
 changeSign :: BigNumber -> BigNumber
 changeSign [] = []
+changeSign (0 : xs) = 0 : changeSign xs
 changeSign (x : xs) = - x : xs
 
+-- determine bigger BN number (2 functions below)
+biggerDrawAux :: BigNumber -> BigNumber -> Int -> (BigNumber, BigNumber)
+biggerDrawAux x y i | length x <= i = (x, y)
+biggerDrawAux [x] [y] _
+  | x > y = ([x], [y])
+  | otherwise = ([y], [x])
+biggerDrawAux x y i
+  | a > b = (x, y)
+  | a < b = (y, x)
+  | otherwise = biggerDrawAux x y (i + 1)
+  where
+    a = x !! i
+    b = y !! i
+
+bigger :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
+bigger [] [] = ([], [])
+bigger x [] = (x, [])
+bigger [] y = ([], y)
+bigger x y
+  | isPositive x && isNegative y = (x, y)
+  | isNegative x && isPositive y = (y, x)
+  | (isPositive x && isPositive y) && (length x > length y) = (x, y)
+  | (isPositive x && isPositive y) && (length x < length y) = (y, x)
+  | (isNegative x && isNegative y) && (length x > length y) = (y, x)
+  | (isNegative x && isNegative y) && (length x < length y) = (x, y)
+bigger (x : xs) (y : ys)
+  | x > y = (x : xs, y : ys)
+  | x < y = (y : ys, x : xs)
+  | isNegative (x : xs) && isNegative (y : ys) = (snd pairToSwitch, fst pairToSwitch)
+  | otherwise = biggerDrawAux (x : xs) (y : ys) 0
+  where
+    pairToSwitch = biggerDrawAux (x : xs) (y : ys) 0
+
+-----------------------------------------------------
+------------------------ 2.2 ------------------------
+-----------------------------------------------------
+scanner :: String -> BigNumber
+scanner ('-' : '0' : cs) = scanner ('-' : removeLeftZeros ('0' : cs))
+scanner ('-' : c : cs) = - read [c] : map (\c -> read [c :: Char] :: Int) cs
+scanner str = map (\c -> read [c :: Char] :: Int) (removeLeftZeros str)
+
+-----------------------------------------------------
+------------------------ 2.3 ------------------------
+-----------------------------------------------------
+output :: BigNumber -> String
+output bn = removeLeftZeros (concatMap show bn)
+
+-----------------------------------------------------
+------------------------ 2.4 ------------------------
+-----------------------------------------------------
 -- fix sum result carry outs
 carrySumRev :: BigNumber -> BigNumber
 carrySumRev [] = []
 carrySumRev [a]
+  | a == 0 = []
   | a > 9 = (a - 10) : [1]
   | otherwise = a : carrySumRev []
 carrySumRev (a : b : rest)
@@ -68,7 +118,9 @@ somaBN (x : xs) (y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = subBN (y : ys) (- x : xs)
   | otherwise = changeSign (carrySum (somaBNResult (- x : xs) (- y : ys)))
 
+-----------------------------------------------------
 ------------------------ 2.5 ------------------------
+-----------------------------------------------------
 -- fix sum result carry outs
 carrySubRev :: BigNumber -> BigNumber
 carrySubRev [] = []
@@ -79,36 +131,21 @@ carrySubRev (a : b : rest)
   | otherwise = a : carrySubRev (b : rest)
 
 carrySub :: BigNumber -> BigNumber
-carrySub bn = reverse (carrySubRev (reverse bn))
-
-dealWithBiggerDraw :: BigNumber -> BigNumber -> Int -> (BigNumber, BigNumber)
-dealWithBiggerDraw x y i | length x <= i = (x, y)
-dealWithBiggerDraw [x] [y] _
-  | x > y = ([x], [y])
-  | otherwise = ([y], [x])
-dealWithBiggerDraw x y i
-  | a > b = (x, y)
-  | a < b = (y, x)
-  | otherwise = dealWithBiggerDraw x y (i + 1)
-  where
-    a = x !! i
-    b = y !! i
-
-dealWithBigger :: BigNumber -> BigNumber -> BigNumber
-dealWithBigger x [] = x
-dealWithBigger [] y = y
-dealWithBigger (x : xs) (y : ys)
-  | x > y = zipWith (-) (x : xs) (y : ys)
-  | x < y = changeSign (zipWith (-) (y : ys) (x : xs))
-  | otherwise = uncurry (zipWith (-)) pair
-  where
-    pair = dealWithBiggerDraw (x : xs) (y : ys) 0
+carrySub bn = reverse (carrySubRev (reverse (removeLeftZerosBN bn)))
 
 subBNResult :: BigNumber -> BigNumber -> BigNumber
 subBNResult x y
-  | length x == length y = dealWithBigger x y
-  | length x > length y = zipWith (-) x (padLeftZeros y (length x))
-  | otherwise = zipWith (-) (padLeftZeros x (length y)) y
+  | length x == length y && x == fst eqBigger = uncurry (zipWith (-)) eqBigger
+  | length x == length y && y == fst eqBigger = changeSign (uncurry (zipWith (-)) eqBigger)
+  | length x > length y && x == fst eqBigger = uncurry (zipWith (-)) gtBigger
+  | length x > length y && y == fst eqBigger = changeSign (uncurry (zipWith (-)) gtBigger)
+  | length x < length y && x == fst eqBigger = uncurry (zipWith (-)) ltBigger
+  | length x < length y && y == fst eqBigger = changeSign (uncurry (zipWith (-)) ltBigger)
+  | otherwise = [-4444]
+  where
+    eqBigger = bigger x y
+    gtBigger = bigger x (padLeftZeros y (length x))
+    ltBigger = bigger (padLeftZeros x (length y)) y
 
 subBN :: BigNumber -> BigNumber -> BigNumber
 subBN [] [] = []
@@ -120,7 +157,9 @@ subBN (x : xs) (y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = changeSign (somaBN (- x : xs) (y : ys))
   | otherwise = carrySub (subBNResult (- y : ys) (- x : xs))
 
+-----------------------------------------------------
 ------------------------ 2.6 ------------------------
+-----------------------------------------------------
 -- muliply every digit by 10^i :: [1,2,3] becomes [100,20,3]
 padMulDivAux :: BigNumber -> Int -> BigNumber
 padMulDivAux [] _ = []
@@ -135,7 +174,10 @@ padMulDiv bn = padMulDivAux (reverse bn) 0
 mulCycle :: BigNumber -> BigNumber -> BigNumber
 mulCycle [] _ = []
 mulCycle _ [] = []
-mulCycle xs (y : ys) = somaBN (scanner (output [sum (zipWith (*) (replicate (length xs) y) xs)])) (mulCycle xs ys)
+mulCycle xs (y : ys) =
+  somaBN
+    (scanner (output [sum (zipWith (*) (replicate (length xs) y) xs)]))
+    (mulCycle xs ys)
 
 mulBN :: BigNumber -> BigNumber -> BigNumber
 mulBN x y = mulCycle (padMulDiv x) (padMulDiv y)
