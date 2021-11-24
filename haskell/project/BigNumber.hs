@@ -1,4 +1,14 @@
-module BigNumber where
+module BigNumber
+  ( BigNumber (..),
+    scanner,
+    output,
+    somaBN,
+    subBN,
+    mulBN,
+    divBN,
+    safeDivBN,
+  )
+where
 
 ------------------------ 2.1 ------------------------
 type BigNumber = [Int]
@@ -147,7 +157,7 @@ subBNResult x y
     gtBigger = bigger x (padLeftZeros y (length x))
     ltBigger = bigger (padLeftZeros x (length y)) y
 
-subBN :: BigNumber -> BigNumber -> BigNumber
+subBN :: BigNumber -> BigNumber -> BigNumber -- FIXME: check, its tricky
 subBN [] [] = []
 subBN xs [] = xs
 subBN [] ys = ys
@@ -179,9 +189,19 @@ mulCycle xs (y : ys) =
     (scanner (output [sum (zipWith (*) (replicate (length xs) y) xs)]))
     (mulCycle xs ys)
 
-mulBN :: BigNumber -> BigNumber -> BigNumber
+mulBN :: BigNumber -> BigNumber -> BigNumber -- FIXME: check, its almost 100%
 mulBN x y = mulCycle (padMulDiv x) (padMulDiv y)
 
 ------------------------ 2.7 ------------------------
-divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
-divBN x y = ([0], [0])
+divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber) -- TODO: implement
+divBN x y = ([0], [0]) 
+
+------------------------  5. ------------------------
+safeDivBN :: BigNumber -> BigNumber -> Maybe (BigNumber, BigNumber) -- FIXME: check when div is done
+safeDivBN x y
+  | y /= [0] = Just (divBN x y)
+  | otherwise = Nothing
+
+-----------------------------------------------------
+---------------- Test functions -----------------
+-----------------------------------------------------
