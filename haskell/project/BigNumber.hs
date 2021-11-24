@@ -14,7 +14,7 @@ where
 type BigNumber = [Int]
 
 -----------------------------------------------------
----------------- Auxiliar functions -----------------
+------------ Generic Auxiliar functions -------------
 -----------------------------------------------------
 -- remove left hand zeros in string
 removeLeftZeros :: String -> String
@@ -115,11 +115,13 @@ carrySum bn = reverse (carrySumRev (reverse bn))
 somaBNResult :: BigNumber -> BigNumber -> BigNumber
 somaBNResult x y
   | length x == length y = zipWith (+) x y
-  | length x > length y = zipWith (+) x (padLeftZeros y (length x))
-  | otherwise = zipWith (+) (padLeftZeros x (length y)) y
+  | length x > length y = zipWith (+) x y'
+  | otherwise = zipWith (+) x' y
+  where
+    y' = padLeftZeros y (length x)
+    x' = padLeftZeros x (length y)
 
 somaBN :: BigNumber -> BigNumber -> BigNumber
-somaBN [] [] = []
 somaBN xs [] = xs
 somaBN [] ys = ys
 somaBN (x : xs) (y : ys)
@@ -134,14 +136,16 @@ somaBN (x : xs) (y : ys)
 -- fix sum result carry outs
 carrySubRev :: BigNumber -> BigNumber
 carrySubRev [] = []
+carrySubRev [0] = []
 carrySubRev [a] = [a]
+carrySubRev x | x == replicate (length x) 0 = [0]
 carrySubRev (a : b : rest)
   | a > 9 = a - 10 : carrySubRev (b + 1 : rest)
   | a < 0 = a + 10 : carrySubRev (b - 1 : rest)
   | otherwise = a : carrySubRev (b : rest)
 
 carrySub :: BigNumber -> BigNumber
-carrySub bn = reverse (carrySubRev (reverse (removeLeftZerosBN bn)))
+carrySub bn = reverse (carrySubRev (reverse bn))
 
 subBNResult :: BigNumber -> BigNumber -> BigNumber
 subBNResult x y

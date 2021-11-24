@@ -95,11 +95,12 @@ output [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0]
 somaBN :: BigNumber -> BigNumber -> BigNumber
 ```
 ```haskell
-somaBN (scanner "123") (scanner "123")     -- 246
+somaBN (scanner "32") (scanner "137")      -- 169
+somaBN (scanner "123") (scanner "100")     -- 246
 somaBN (scanner "123") (scanner "246")     -- 369
 somaBN (scanner "123") (scanner "987")     -- 1110
 
-somaBN (scanner "123") (scanner "-33")     -- 90 (neste caso dá [0,9,0], nao devia ser [9,0] ??)
+somaBN (scanner "123") (scanner "-33")     -- 90
 somaBN (scanner "123") (scanner "-133")    -- -10
 
 somaBN (scanner "-123") (scanner "33")     -- -90 (deu-me [-2,9,0])
@@ -107,6 +108,7 @@ somaBN (scanner "-123") (scanner "133")    -- 10
 
 somaBN (scanner "-123") (scanner "-33")     -- -156
 somaBN (scanner "-123") (scanner "-133")    -- -256
+somaBN (scanner "-9371") (scanner "-29358") -- -38729
 ```
 
 #### SubBN
