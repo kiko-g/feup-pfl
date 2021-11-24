@@ -99,11 +99,14 @@ somaBN (scanner "123") (scanner "123")     -- 246
 somaBN (scanner "123") (scanner "246")     -- 369
 somaBN (scanner "123") (scanner "987")     -- 1110
 
-somaBN (scanner "123") (scanner "-33")     -- 90
+somaBN (scanner "123") (scanner "-33")     -- 90 (neste caso dá [0,9,0], nao devia ser [9,0] ??)
 somaBN (scanner "123") (scanner "-133")    -- -10
 
-somaBN (scanner "-123") (scanner "33")     -- -90
+somaBN (scanner "-123") (scanner "33")     -- -90 (deu-me [-2,9,0])
 somaBN (scanner "-123") (scanner "133")    -- 10
+
+somaBN (scanner "-123") (scanner "-33")     -- -156
+somaBN (scanner "-123") (scanner "-133")    -- -256
 ```
 
 #### SubBN
@@ -112,7 +115,18 @@ somaBN (scanner "-123") (scanner "133")    -- 10
 subBN :: BigNumber -> BigNumber -> BigNumber
 ```
 ```haskell
+subBN (scanner "123") (scanner "123")     -- 0
+subBN (scanner "123") (scanner "246")     -- -123
+subBN (scanner "123") (scanner "12")      -- 111
 
+subBN (scanner "123") (scanner "-33")     -- 156
+subBN (scanner "123") (scanner "-133")    -- 256
+
+subBN (scanner "-123") (scanner "33")     -- -156
+subBN (scanner "-123") (scanner "133")    -- -256
+
+subBN (scanner "-123") (scanner "-33")     -- -90 (deu-me [-2,9,0])
+subBN (scanner "-123") (scanner "-133")    -- 10
 ```
 
 #### MulBN
@@ -121,7 +135,18 @@ subBN :: BigNumber -> BigNumber -> BigNumber
 mulBN :: BigNumber -> BigNumber -> BigNumber
 ```
 ```haskell
+mulBN (scanner "123") (scanner "123")     -- 15129
+mulBN (scanner "123") (scanner "246")     -- 30258
+mulBN (scanner "123") (scanner "12")      -- 1476
 
+mulBN (scanner "123") (scanner "-33")     -- -4059 (deu-me [-3,3,2,1])
+mulBN (scanner "123") (scanner "-133")    -- -16359 (deu-me [-2,8,2,4,1])
+
+mulBN (scanner "-123") (scanner "33")     -- -4059 (deu-me [-2,5,4,1])
+mulBN (scanner "-123") (scanner "133")    -- -16359 (deu-me [-1,0,2,4,1])
+
+mulBN (scanner "-123") (scanner "-33")     -- 4059 (deu-me [2,0,7,9])
+mulBN (scanner "-123") (scanner "-133")    -- 16359 (deu-me [5,1,5,9])
 ```
 
 #### DivBN
