@@ -128,7 +128,7 @@ somaBN (x : xs) (y : ys)
   | isPositive (x : xs) && isPositive (y : ys) = carrySum (somaBNResult (x : xs) (y : ys))
   | isPositive (x : xs) && isNegative (y : ys) = subBN (x : xs) (- y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = subBN (y : ys) (- x : xs)
-  | otherwise = changeSign (carrySum (somaBNResult (- x : xs) (- y : ys)))
+  | otherwise = changeSign (somaBN (- x : xs) (- y : ys))
 
 -----------------------------------------------------
 ------------------------ 2.5 ------------------------
@@ -145,31 +145,30 @@ carrySubRev (a : b : rest)
   | otherwise = a : carrySubRev (b : rest)
 
 carrySub :: BigNumber -> BigNumber
-carrySub bn = reverse (carrySubRev (reverse bn))
+carrySub bn = reverse (carrySubRev (reverse (removeLeftZerosBN bn)))
 
 subBNResult :: BigNumber -> BigNumber -> BigNumber
 subBNResult x y
-  | length x == length y && x == fst eqBigger = uncurry (zipWith (-)) eqBigger
-  | length x == length y && y == fst eqBigger = changeSign (uncurry (zipWith (-)) eqBigger)
-  | length x > length y && x == fst eqBigger = uncurry (zipWith (-)) gtBigger
-  | length x > length y && y == fst eqBigger = changeSign (uncurry (zipWith (-)) gtBigger)
-  | length x < length y && x == fst eqBigger = uncurry (zipWith (-)) ltBigger
-  | length x < length y && y == fst eqBigger = changeSign (uncurry (zipWith (-)) ltBigger)
-  | otherwise = [-4444]
+  | length x == length y && x == fst eqBigger = carrySub (uncurry (zipWith (-)) eqBigger)
+  | length x == length y && y == fst eqBigger = changeSign (carrySub (uncurry (zipWith (-)) eqBigger))
+  | length x > length y && x == fst gtBigger = carrySub (uncurry (zipWith (-)) gtBigger)
+  | length x > length y && y == fst gtBigger = changeSign (carrySub (uncurry (zipWith (-)) gtBigger))
+  | length x < length y && x == fst ltBigger = carrySub (uncurry (zipWith (-)) ltBigger)
+  | otherwise = changeSign (carrySub (uncurry (zipWith (-)) ltBigger))
   where
     eqBigger = bigger x y
     gtBigger = bigger x (padLeftZeros y (length x))
-    ltBigger = bigger (padLeftZeros x (length y)) y
+    ltBigger = bigger y (padLeftZeros x (length y))
 
 subBN :: BigNumber -> BigNumber -> BigNumber -- FIXME: check, its tricky
 subBN [] [] = []
 subBN xs [] = xs
 subBN [] ys = ys
 subBN (x : xs) (y : ys)
-  | isPositive (x : xs) && isPositive (y : ys) = carrySub (subBNResult (x : xs) (y : ys))
+  | isPositive (x : xs) && isPositive (y : ys) = subBNResult (x : xs) (y : ys)
   | isPositive (x : xs) && isNegative (y : ys) = somaBN (x : xs) (- y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = changeSign (somaBN (- x : xs) (y : ys))
-  | otherwise = carrySub (subBNResult (- y : ys) (- x : xs))
+  | otherwise = changeSign (subBN (- y : ys) (- x : xs))
 
 -----------------------------------------------------
 ------------------------ 2.6 ------------------------

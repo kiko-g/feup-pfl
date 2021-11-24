@@ -96,15 +96,17 @@ somaBN :: BigNumber -> BigNumber -> BigNumber
 ```
 ```haskell
 somaBN (scanner "32") (scanner "137")      -- 169
-somaBN (scanner "123") (scanner "100")     -- 246
+somaBN (scanner "123") (scanner "100")     -- 223
 somaBN (scanner "123") (scanner "246")     -- 369
 somaBN (scanner "123") (scanner "987")     -- 1110
 
 somaBN (scanner "123") (scanner "-33")     -- 90
-somaBN (scanner "123") (scanner "-133")    -- -10
+somaBN (scanner "123") (scanner "-132")    -- -9
+somaBN (scanner "123") (scanner "-124")    -- -1
 
 somaBN (scanner "-123") (scanner "33")     -- -90 (deu-me [-2,9,0])
 somaBN (scanner "-123") (scanner "133")    -- 10
+somaBN (scanner "-123") (scanner "124")    -- 1
 
 somaBN (scanner "-123") (scanner "-33")     -- -156
 somaBN (scanner "-123") (scanner "-133")    -- -256
