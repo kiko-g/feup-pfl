@@ -104,7 +104,7 @@ somaBN (scanner "123") (scanner "-33")     -- 90
 somaBN (scanner "123") (scanner "-132")    -- -9
 somaBN (scanner "123") (scanner "-124")    -- -1
 
-somaBN (scanner "-123") (scanner "33")     -- -90 (deu-me [-2,9,0])
+somaBN (scanner "-123") (scanner "33")     -- -90
 somaBN (scanner "-123") (scanner "133")    -- 10
 somaBN (scanner "-123") (scanner "124")    -- 1
 
@@ -129,7 +129,7 @@ subBN (scanner "123") (scanner "-133")    -- 256
 subBN (scanner "-123") (scanner "33")     -- -156
 subBN (scanner "-123") (scanner "133")    -- -256
 
-subBN (scanner "-123") (scanner "-33")     -- -90 (deu-me [-2,9,0])
+subBN (scanner "-123") (scanner "-33")     -- -90
 subBN (scanner "-123") (scanner "-133")    -- 10
 ```
 

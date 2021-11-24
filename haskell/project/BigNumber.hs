@@ -168,7 +168,7 @@ subBN (x : xs) (y : ys)
   | isPositive (x : xs) && isPositive (y : ys) = subBNResult (x : xs) (y : ys)
   | isPositive (x : xs) && isNegative (y : ys) = somaBN (x : xs) (- y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = changeSign (somaBN (- x : xs) (y : ys))
-  | otherwise = changeSign (subBN (- y : ys) (- x : xs))
+  | otherwise = subBN (- y : ys) (- x : xs)
 
 -----------------------------------------------------
 ------------------------ 2.6 ------------------------
