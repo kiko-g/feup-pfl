@@ -111,30 +111,38 @@ subBN (x : xs) (y : ys)
 -----------------------------------------------------
 --                       2.6                       --
 -----------------------------------------------------
-{- muliply every digit by 10^i :: [1,2,3] becomes [100,20,3] -}
-padMul :: BigNumber -> BigNumber
-padMul bn = padder (reverse bn) 0
+{- append i zeros to BN digits in reverse :: [1,2,3] becomes [100,20,3] -}
+padMulBN :: BigNumber -> [BigNumber]
+padMulBN bn = padder (reverse bn) 0
   where
-    padder :: BigNumber -> Int -> BigNumber
+    padder :: BigNumber -> Int -> [BigNumber]
     padder [] _ = []
-    padder (x : xs) i = padder xs (i + 1) ++ [x * 10 ^ i]
+    padder (x : xs) i = padder xs (i + 1) ++ [x : replicate i 0]
 
+{- calculates multiplication for 2 BigNumbers -}
 mulBN :: BigNumber -> BigNumber -> BigNumber
-mulBN x y -- = [0]
-  | isPositive x && isPositive y = mulBNResult x' y'
-  | isPositive x && isNegative y = changeSign (mulBNResult x' (changeSign y'))
-  | isNegative x && isPositive y = changeSign (mulBNResult (changeSign x') y')
-  | otherwise = mulBNResult (changeSign x') (changeSign y')
-  where
-    x' = padMul x
-    y' = padMul y
-    normalize x = scanner (output x)
-    mulBNResult [] _ = []
-    mulBNResult _ [] = []
-    mulBNResult xs (y : ys) =
-      somaBN
-        (normalize [sum (map (* y) xs)]) -- (zipWith (*) (replicate (length xs) y) xs)
-        (mulBNResult xs ys)
+mulBN x y
+  | isPositive x && isPositive y = mulBNResult x y
+  | isPositive x && isNegative y = changeSign (mulBN x (changeSign y))
+  | isNegative x && isPositive y = changeSign (mulBN (changeSign x) y)
+  | otherwise = mulBN (changeSign x) (changeSign y)
+  where {- determines ordered bigger pair before calculating -}
+    mulBNResult :: BigNumber -> BigNumber -> BigNumber
+    mulBNResult x y
+      | x == fst (bigger x y) = calculateMul x (reverse y) 0
+      | otherwise = calculateMul y (reverse x) 0
+      where {- recursively sums all the intermediate BigNumbers produced -}
+        calculateMul :: BigNumber -> BigNumber -> Int -> BigNumber
+        calculateMul [] _ _ = []
+        calculateMul _ [] _ = []
+        calculateMul xs (y : ys) i =
+          somaBN
+            (resultAppendZeros (padMulBN xs) y i)
+            (calculateMul xs ys (i + 1))
+          where {- multiplies all BNs in xs by the integer y, adds them all and appends zeros if need be -}
+            resultAppendZeros :: [BigNumber] -> Int -> Int -> BigNumber
+            resultAppendZeros [] _ _ = []
+            resultAppendZeros xs y i = somaBNs (mapTimesList xs y) ++ replicate i 0
 
 -----------------------------------------------------
 --                       2.7                       --
@@ -223,8 +231,38 @@ biggerDrawAux x y i
     a = x !! i
     b = y !! i
 
--- somaBNAll :: BigNumber -> BigNumber
--- somaBNAll [] = []
--- somaBNAll [x] = [x]
--- somaBNAll [x, y] = somaBN [x] [y]
--- somaBNAll (x : y : rest) = somaBN (somaBN [x] [y]) (somaBNAll rest)
+{- prelude sum function for BigNumbers -}
+somaBNs :: [BigNumber] -> BigNumber
+somaBNs [] = []
+somaBNs [x] = x
+somaBNs [x, y] = somaBN x y
+somaBNs (x : y : rest) = somaBN (somaBN x y) (somaBNs rest)
+
+{- multiply every big number by an integer -}
+mapTimesList :: [BigNumber] -> Int -> [BigNumber]
+mapTimesList [] _ = []
+mapTimesList (bn : bns) mul = map (* mul) bn : mapTimesList bns mul
+
+-- padMul :: BigNumber -> BigNumber
+-- padMul bn = padder (reverse bn) 0
+--   where
+--     padder :: BigNumber -> Int -> BigNumber
+--     padder [] _ = []
+--     padder (x : xs) i = padder xs (i + 1) ++ [x * 10 ^ i]
+--
+-- mulBN :: BigNumber -> BigNumber -> BigNumber
+-- mulBN x y -- = [0]
+--   | isPositive x && isPositive y = mulBNResult x' y'
+--   | isPositive x && isNegative y = changeSign (mulBNResult x' (changeSign y'))
+--   | isNegative x && isPositive y = changeSign (mulBNResult (changeSign x') y')
+--   | otherwise = mulBNResult (changeSign x') (changeSign y')
+--   where
+--     x' = padMul x
+--     y' = padMul y
+--     normalize x = scanner (output x)
+--     mulBNResult [] _ = []
+--     mulBNResult _ [] = []
+--     mulBNResult xs (y : ys) =
+--       somaBN
+--         (normalize [sum (map (* y) xs)]) -- (zipWith (*) (replicate (length xs) y) xs)
+--         (mulBNResult xs ys)
