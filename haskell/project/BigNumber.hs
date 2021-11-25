@@ -13,7 +13,7 @@ where
 type BigNumber = [Int] -- 2.1
 
 -----------------------------------------------------
-----                     2.2                     ----
+----------------------   2.2   ----------------------
 -----------------------------------------------------
 scanner :: String -> BigNumber
 scanner ('-' : '0' : cs) = scanner ('-' : removeLeftZeros ('0' : cs))
@@ -21,13 +21,13 @@ scanner ('-' : c : cs) = - read [c] : map (\c -> read [c :: Char] :: Int) cs
 scanner str = map (\c -> read [c :: Char] :: Int) (removeLeftZeros str)
 
 -----------------------------------------------------
-----                     2.3                     ----
+----------------------   2.3   ----------------------
 -----------------------------------------------------
 output :: BigNumber -> String
 output bn = removeLeftZeros (concatMap show bn)
 
 -----------------------------------------------------
-----                     2.4                     ----
+----------------------   2.4   ----------------------
 -----------------------------------------------------
 {- fix sum result carry outs -}
 carrySum :: BigNumber -> BigNumber
@@ -64,7 +64,7 @@ somaBN (x : xs) (y : ys)
         x' = padLeftZeros x (length y)
 
 -----------------------------------------------------
-----                     2.5                     ----
+----------------------   2.5   ----------------------
 -----------------------------------------------------
 {- fix sub result carry outs -}
 carrySub :: BigNumber -> BigNumber
@@ -106,7 +106,7 @@ subBN (x : xs) (y : ys)
         ltBigger = bigger y (padLeftZeros x (length y))
 
 -----------------------------------------------------
-----                     2.6                     ----
+----------------------   2.6   ----------------------
 -----------------------------------------------------
 {- append i zeros to BN digits in reverse :: [1,2,3] becomes [100,20,3] -}
 padMulBN :: BigNumber -> [BigNumber]
@@ -123,12 +123,14 @@ mulBN x y
   | isPositive x && isNegative y = changeSign (mulBN x (changeSign y))
   | isNegative x && isPositive y = changeSign (mulBN (changeSign x) y)
   | otherwise = mulBN (changeSign x) (changeSign y)
-  where {- determines ordered bigger pair before calculating -}
+  where
+    {- determines ordered bigger pair before calculating -}
     mulBNResult :: BigNumber -> BigNumber -> BigNumber
     mulBNResult x y
       | x == fst (bigger x y) = calculateMul x (reverse y) 0
       | otherwise = calculateMul y (reverse x) 0
-      where {- recursively sums all the intermediate BigNumbers produced -}
+      where
+        {- recursively sums all the intermediate BigNumbers produced -}
         calculateMul :: BigNumber -> BigNumber -> Int -> BigNumber
         calculateMul [] _ _ = []
         calculateMul _ [] _ = []
@@ -136,35 +138,32 @@ mulBN x y
           somaBN
             (resultAppendZeros (padMulBN xs) y i)
             (calculateMul xs ys (i + 1))
-          where {- multiplies all BNs in xs by the integer y, adds them all and appends zeros if need be -}
+          where
+            {- multiplies all BNs in xs by the integer y, adds them all and appends zeros if need be -}
             resultAppendZeros :: [BigNumber] -> Int -> Int -> BigNumber
             resultAppendZeros [] _ _ = []
             resultAppendZeros xs y i = somaBNs (mapTimesList xs y) ++ replicate i 0
 
 -----------------------------------------------------
-----                     2.7                     ----
+----------------------   2.7   ----------------------
 -----------------------------------------------------
 divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber) -- TODO: implement
 divBN x y
   | isPositive x && isPositive y = divBNResult x y
-  | isPositive x && isNegative y = changeSignSpecial (divBN x (changeSign y))
-  | isNegative x && isPositive y = changeSignSpecial (divBN (changeSign x) y)
+  | isPositive x && isNegative y = changeSignDiv (divBN x (changeSign y))
+  | isNegative x && isPositive y = changeSignDiv (divBN (changeSign x) y)
   | otherwise = divBN (changeSign x) (changeSign y)
   where
-    divBNResult = ([0],[0])
+    divBNResult x y = ([0], [0])
 
 -----------------------------------------------------
-----                      5.                     ----
+----------------------    5.   ----------------------
 -----------------------------------------------------
 {- only performs division when divisor is not 0 and returns Nothing otherwise -}
 safeDivBN :: BigNumber -> BigNumber -> Maybe (BigNumber, BigNumber)
 safeDivBN x y
   | y /= [0] = Just (divBN x y)
   | otherwise = Nothing
-
-
-
-
 
 -----------------------------------------------------
 ----         Generic Auxiliar functions          ----
@@ -249,3 +248,11 @@ somaBNs (x : y : rest) = somaBN (somaBN x y) (somaBNs rest)
 mapTimesList :: [BigNumber] -> Int -> [BigNumber]
 mapTimesList [] _ = []
 mapTimesList (bn : bns) mul = map (* mul) bn : mapTimesList bns mul
+
+changeSignDiv :: (BigNumber, BigNumber) -> (BigNumber, BigNumber)
+changeSignDiv (x, []) = (x, [])
+changeSignDiv ([], y) = ([], y)
+changeSignDiv (0 : xs, 0 : ys) = changeSignDiv (xs, ys)
+changeSignDiv (0 : xs, y) = changeSignDiv (xs, y)
+changeSignDiv (x, 0 : ys) = changeSignDiv (x, ys)
+changeSignDiv (x : xs, y : ys) = (- x : xs, - y : ys)
