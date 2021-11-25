@@ -2,10 +2,10 @@
 
 ## TODO
 
-- Mul
+- Maybe fix approach to mul (`map (*3) [1,0,0]` = `[3,0,0]`)
 - Div
 - Responder alinea 4
-- Cleanup + efficiency + error proofing
+- Final cleanup
 - Terminar docs
 
 ## Documentação e casos de teste
@@ -112,9 +112,9 @@ somaBN (scanner "123") (scanner "100")     -- 223
 somaBN (scanner "123") (scanner "246")     -- 369
 somaBN (scanner "123") (scanner "987")     -- 1110
 
-somaBN (scanner "123") (scanner "-33")     -- 90
-somaBN (scanner "123") (scanner "-132")    -- -9
-somaBN (scanner "123") (scanner "-124")    -- -1
+somaBN (scanner "123") (scanner "-34")     -- 89
+somaBN (scanner "123") (scanner "-130")    -- -7
+somaBN (scanner "23") (scanner "-124")     -- -101
 
 somaBN (scanner "-123") (scanner "33")     -- -90
 somaBN (scanner "-123") (scanner "133")    -- 10
@@ -233,11 +233,30 @@ divBN (scanner "148") (scanner "0")       -- Nothing
 ## Estratégias
 
 1. Definir o novo tipo como uma lista de inteiros: `type BigNumber = [Int]`
-2. Para definir `scanner` recorremos ao `map` e `read` para percorrer todos os caracteres, tendo o cuidado de acrescentar o sinal negativo caso o primeiro char fosse `-`
-3. Para definir `output` recorremos a `concatMap show` que percorre e junta num array de chars todos os digitos inteiros da lista passada como argumento
-4. Para definir `somaBN` começámos por por verificar o comprimento das listas a somar. No caso de não serem iguais, acrescentamos zeros à esquerda no nº que necessita (com a função `padLeftZeros`) até o comprimento ser igual. O resultado é obtido usando `zipWith (+) n1 n2`. Tendo obtido o resultado, sem pensar nos `carry outs` das somas, pegamos nesse _BigNumber_ e usamos a função `carrySum` para lidar com as casas superiores a 9. Para facilitar as coisas também transfomamos as somas em casos mais. simples `(p.e.: -1 + -1 = - (1+1))` recorrendo a `changeSign`, `isPositive` e `isNegative`. Dessa forma transformamos algumas somas em operações `subBN` e vice-versa.
-5. Para definir `subBN` usámos uma abordagem semelhante à da `somaBN`, exceto que neste caso usamos `carrySub`, onde verificamos também dígitos do _BigNumber_ resultante inferiores a 0. A restante lógica é semelhante à somaBN. Neste caso usamos `zipWith (-)` e algumas subtrações são transformadas em somas, por simplicidade.
-6. `mulBN` utiliza `padMulDiv` que multiplica os elementos de um _BigNumber_ por `10^index`. Assim [1, 2, 3] passa a [100, 20, 3]. O resultado é calculado acumulando recursivamente os resultados de multiplicar cada digito do nº `a` pelo número `b`. Usamos `zipWith (*)` replicando o dígito em questão para uma lista do tamanho do nº a multiplicar. Assim [1, 2, 3] _ [3] internamente seria `zipWith (_) [100, 20, 3] [3, 3, 3]`.
+2. Para definir `scanner` recorremos ao `map` e `read` para percorrer todos os caracteres, transformando-os em inteiros, tendo o cuidado de acrescentar o sinal negativo caso o primeiro char fosse `-` e removendo potenciais zeros à esquerda usando uma função auxiliar `removeLeftZeros`.
+3. Para definir `output` recorremos a `concatMap show` que percorre e junta num array de chars todos os digitos inteiros da lista passada como argumento, tendo o cuidado de remover potenciais zeros à esquerda, recorrendo à função auxiliar `removeLeftZeros`.
+4. Para definir `somaBN` começámos por criar predicados auxiliares
+
+   - `changeSign` para mudar de sinal.
+   - `isPositive` e `isNegative` para verificar sinal dos BNs
+   - `padLeftZeros` que acrescenta zeros à esquerda, já que no caso de "somarmos listas" de tamanho diferente, é preciso acrescentar zeros à esquerda num dos operandos até o comprimento ser igual.
+
+   O resultado é obtido usando `zipWith (+) n1 n2`. Tendo obtido o resultado, sem pensar nos `carry outs` das somas, pegamos nesse _BigNumber_ e usamos a função `carrySum` para lidar com as casas superiores a 9 e outros casos críticos para o resultado final. A nossa implementação de `somaBN` funciona como uma espécie de "router" de resultado:
+
+   - caso `x` e `y` sejam ambos positivos é feita uma soma normal com `sumBNResult`.
+   - caso `x` tenha sinal diferente de `y`, a soma é transformada em subtração (`subBN`)
+   - caso ambos `x` e `y` sejam ambos negativos a soma é transformada em - `- ((-x) + (-y))`
+
+5. Para definir `subBN` usámos uma abordagem semelhante à da `somaBN` com as seguintes diferenças relevantes:
+
+   - Usamos `carrySub`, que verifica dígitos do _BigNumber_ resultante inferiores a 0 e mais alguns casos críticos para o resultado.
+   - É usado `zipWith (-)` e algumas subtrações são transformadas em somas, por simplicidade.
+   - Criamos uma função auxiliar `bigger` que se encarrega de retornar um par dos números ordenados, sabendo assim que número é maior e tornando mais fácil a subtração.
+
+6. Para implementar `mulBN` seguimos os seguintes passos.
+   - Começamos por criar uma função axuiliar, `padMul`, que multiplica os elementos de um _BigNumber_ por `10^index`. Assim [1, 2, 3] passa a [100, 20, 3]. Esta função é aplicada a ambos os operandos da multiplicação.
+   - Usamos `normalize [sum (map (* y) xs)]` where `normalize` is `scanner (output x)` para obter a soma de todas as operações`*` feitas e transformando isso de novo num BN.
+   - O resultado é calculado somando (usando `somaBN`) recursivamente os resultados de multiplicar cada digito do número `a` pelo número `b`.
 7. `divBN`
 
 ## Resposta à alínea 4

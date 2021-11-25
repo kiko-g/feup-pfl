@@ -128,11 +128,12 @@ mulBN x y -- = [0]
   where
     x' = padMul x
     y' = padMul y
+    normalize x = scanner (output x)
     mulBNResult [] _ = []
     mulBNResult _ [] = []
     mulBNResult xs (y : ys) =
       somaBN
-        (scanner (output [sum (zipWith (*) (replicate (length xs) y) xs)]))
+        (normalize [sum (map (* y) xs)]) -- (zipWith (*) (replicate (length xs) y) xs)
         (mulBNResult xs ys)
 
 -----------------------------------------------------
@@ -222,18 +223,8 @@ biggerDrawAux x y i
     a = x !! i
     b = y !! i
 
-{-
-multiply every x by every y (after padding) and summing the result recursively
-to make use of zipWith, y is replicated to match length of xs
-222 * 3 = zipWith (*) [200, 20, 2] [3,3,3]
--}
--- mulCycle :: BigNumber -> BigNumber -> BigNumber
--- mulCycle [] _ = []
--- mulCycle _ [] = []
--- mulCycle xs (y : ys) =
---   somaBN
---     (scanner (output [sum (zipWith (*) (replicate (length xs) y) xs)]))
---     (mulCycle xs ys)
-
--- mulBN :: BigNumber -> BigNumber -> BigNumber
--- mulBN x y = mulCycle (padMul x) (padMul y)
+-- somaBNAll :: BigNumber -> BigNumber
+-- somaBNAll [] = []
+-- somaBNAll [x] = [x]
+-- somaBNAll [x, y] = somaBN [x] [y]
+-- somaBNAll (x : y : rest) = somaBN (somaBN [x] [y]) (somaBNAll rest)
