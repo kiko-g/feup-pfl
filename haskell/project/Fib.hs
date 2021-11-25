@@ -27,18 +27,13 @@ fibRecBN [0] = [0]
 fibRecBN [1] = [1]
 fibRecBN bn = somaBN (fibRecBN (subBN bn [2])) (fibRecBN (subBN bn [1]))
 
-nthBN :: [BigNumber] -> BigNumber -> BigNumber -- redefine !! operator for BigNumber
-nthBN [] _ = []
-nthBN (x : xs) [0] = x
-nthBN (x : xs) index = nthBN xs (subBN index [1])
-
 ------------ 3.2 ------------
 fibListaBN :: BigNumber -> BigNumber
 fibListaBN [0] = [0]
 fibListaBN [1] = [1]
 fibListaBN bn = somaBN (nthBN list (subBN bn [2])) (nthBN list (subBN bn [1]))
   where
-    list = [fibListaBN [x] | x <- [0 ..]]
+    list = [fibListaBN [x] | x <- [0 ..]] -- must be infinite because we would need the integer value of bn.
 
 ------------ 3.3 ------------
 fibInfinitosAuxBN :: [BigNumber]
@@ -46,3 +41,9 @@ fibInfinitosAuxBN = [0] : [1] : zipWith somaBN fibInfinitosAuxBN (tail fibInfini
 
 fibListaInfinitaBN :: BigNumber -> BigNumber
 fibListaInfinitaBN = nthBN fibInfinitosAuxBN
+
+---- Auxiliar functions  -----
+nthBN :: [BigNumber] -> BigNumber -> BigNumber -- redefine !! operator for BigNumber
+nthBN [] _ = []
+nthBN (x : xs) [0] = x
+nthBN (x : xs) index = nthBN xs (subBN index [1])

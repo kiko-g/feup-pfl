@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Maybe fix approach to mul (`map (*3) [1,0,0]` = `[3,0,0]`)
 - Div
 - Responder alinea 4
 - Final cleanup
@@ -41,7 +40,7 @@ fibRec 10
 fibRec 15
 ```
 
-Parte dos casos base `fibRec 0 = 0` e `fibRec 1 = 1` e recursivamente soma os pares fibonacci `(n-2)` e `(n-1)`
+Parte dos casos base `fibRec 0 = 0` e `fibRec 1 = 1` e recursivamente soma os pares fibonacci `(n-2)` e `(n-1)`.
 
 #### FibLista
 
@@ -55,7 +54,7 @@ fibLista 10
 fibLista 15
 ```
 
-Parte dos casos base `fibRec 0 = 0` e `fibRec 1 = 1` e soma os pares fibonacci `(n-2)` e `(n-1)`, usando os elementos `n-2` e `n-1` da lista de fibonacci de `0` até `n`
+Parte dos casos base `fibRec 0 = 0` e `fibRec 1 = 1` e soma os pares fibonacci `n-2` e `(n-1)`, selecionado (usando `!!`) os elementos `n-2` e `n-1` da lista de fibonacci de `0` até `n`
 
 #### FibListaInfinita
 
@@ -69,7 +68,10 @@ fibListaInfinita 10
 fibListaInfinita 15
 ```
 
-Este predicado usa uma função auxiliar _fibInfinitosAux_ que cria uma lista infinita de números fibonacci, através do zip recursivo de duas listas de fibonacci infinitas desfasadas por 1 casa (lista e tail (lista))
+Este predicado usa uma função auxiliar `fibInfinitosAux` que cria uma lista infinita de números fibonacci, através do `zipWith (+)` recursivo de duas listas de fibonacci infinitas desfasadas por 1 casa (`lista` e `tail (lista)`). Por terem esse desfasamento, é possível criar uma lista de números fibonacci.
+
+> 0 1 1 2 3 5 (...)
+> &nbsp;&nbsp;&nbsp;0 1 1 2 3 5 (...)
 
 #### Scanner
 
@@ -86,6 +88,8 @@ scanner "-0001234"
 scanner "12345678901234567890"
 ```
 
+Percorre todos os caracteres, e transforma-os em inteiros, resultando numa lista de inteiros entre `0` e `9`. Acrescenta o sinal negativo ao primeiro inteiro caso o primeiro char fosse `-`, após ter removido potenciais zeros à esquerda usando uma função auxiliar `removeLeftZeros`.
+
 #### Output
 
 ```haskell
@@ -99,6 +103,8 @@ output [0,0,0,0,0]
 output [0,0,0,1,2,3,4]
 output [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0]
 ```
+
+Percorre todos os dígitos de um `BigNumber`, transformando-os em chars e juntando-os numa string, tendo o cuidado de remover potenciais zeros à esquerda.
 
 #### SomaBN
 
@@ -125,6 +131,8 @@ somaBN (scanner "-123") (scanner "-133")    -- -256
 somaBN (scanner "-9371") (scanner "-29358") -- -38729
 ```
 
+Soma dois `BigNumbers`. Caso os números não sejam ambos positivos, transforma somas de sinais opostos em subtrações e no caso de serem ambos negativos inverte o sinal dos operandos e da soma final. Antes de somar as duas listas com `zipWith (+) bn1 bn2`, acrescenta zeros à esquerda ao número menos comprido, para as listas serem correspondentes. Processa os _carry outs_, subtraindo 10 a um dígito e acrescentar um ao próximo.
+
 #### SubBN
 
 ```haskell
@@ -135,16 +143,19 @@ subBN :: BigNumber -> BigNumber -> BigNumber
 subBN (scanner "123") (scanner "123")     -- 0
 subBN (scanner "123") (scanner "246")     -- -123
 subBN (scanner "123") (scanner "12")      -- 111
+subBN (scanner "9873") (scanner "8328")   -- 1545
 
 subBN (scanner "123") (scanner "-33")     -- 156
 subBN (scanner "123") (scanner "-133")    -- 256
 
-subBN (scanner "-123") (scanner "33")     -- -156
-subBN (scanner "-123") (scanner "133")    -- -256
+subBN (scanner "-123") (scanner "44")     -- -156
+subBN (scanner "-123") (scanner "144")    -- -256
 
 subBN (scanner "-123") (scanner "-33")     -- -90
 subBN (scanner "-123") (scanner "-133")    -- 10
 ```
+
+Subtrai dois `BigNumbers`. Caso os números não sejam ambos positivos, transforma subtrações de sinais opostos em somas e no caso de serem ambos negativos inverte o sinal dos operandos e da subtração final. Antes de somar as duas listas com `zipWith (+) bn1 bn2`, acrescenta zeros à esquerda ao número menos comprido, para as listas serem correspondentes. Para além disso subtrai o maior número ao menor número. Processa os _carry outs_, subtraindo 10 a um dígito e acrescentar um ao próximo.
 
 #### MulBN
 
@@ -192,6 +203,8 @@ fibRecBN (scanner "10")
 fibRecBN (scanner "15")
 ```
 
+Parte dos casos base `fibRec 0 = 0` e `fibRec 1 = 1` e recursivamente soma os pares fibonacci `(n-2)` e `(n-1)`, usando somaBN.
+
 #### FibListaBN
 
 ```haskell
@@ -204,7 +217,7 @@ fibListaBN (scanner "10")
 fibListaBN (scanner "15")
 ```
 
-Usa uma função nova nthBN para substituir o operador !! nos BigNumbers e faz uso
+Usa uma função nova `nthBN` para substituir o operador !! nos BigNumbers e partindo dos casos base `fibListaBN [0] = [0]` e `fibListaBN [1] = [1]`, soma os pares fibonacci `n-2` e `(n-1)`, selecionado com `nthBN` os elementos `n-2` e `n-1` da lista de fibonacci de `0` até infinito, já que para não ser infinito precisaríamos de ter o valor absoluto inteiro do BN `n`.
 
 #### FibListaInfinitaBN
 
@@ -218,17 +231,26 @@ fibListaInfinitaBN (scanner "10")
 fibListaInfinitaBN (scanner "15")
 ```
 
+Este predicado usa uma função auxiliar `fibInfinitosAuxBN` que cria uma lista infinita de `BigNumbers` fibonacci, através do `zipWith somaBN` recursivo de duas listas de fibonacci infinitas desfasadas por 1 casa (`lista` e `tail (lista)`). Por terem esse desfasamento, é possível criar uma lista de números fibonacci.
+
+> [0] [1] [1] [2] [3] [5] (...)
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0] [1] [1] [2] [3] [5] (...)
+
+````
+
 #### SafeDivBN
 
 ```haskell
 safeDivBN :: BigNumber -> BigNumber -> Maybe (BigNumber, BigNumber)
-```
+````
 
 ```haskell
 divBN (scanner "144") (scanner "12")      -- (12,0)
 divBN (scanner "148") (scanner "12")      -- (12,4)
 divBN (scanner "148") (scanner "0")       -- Nothing
 ```
+
+Executa a divisão quando o divisor não é 0, caso contrário retorna `Nothing`
 
 ## Estratégias
 
@@ -254,9 +276,13 @@ divBN (scanner "148") (scanner "0")       -- Nothing
    - Criamos uma função auxiliar `bigger` que se encarrega de retornar um par dos números ordenados, sabendo assim que número é maior e tornando mais fácil a subtração.
 
 6. Para implementar `mulBN` seguimos os seguintes passos.
-   - Começamos por criar uma função axuiliar, `padMul`, que multiplica os elementos de um _BigNumber_ por `10^index`. Assim [1, 2, 3] passa a [100, 20, 3]. Esta função é aplicada a ambos os operandos da multiplicação.
-   - Usamos `normalize [sum (map (* y) xs)]` where `normalize` is `scanner (output x)` para obter a soma de todas as operações`*` feitas e transformando isso de novo num BN.
-   - O resultado é calculado somando (usando `somaBN`) recursivamente os resultados de multiplicar cada digito do número `a` pelo número `b`.
+   - Começamos por criar uma função axuiliar, `padMulBN`, que acrescenta aos elementos de um _BigNumber_ (invertido) zeros `index` vezes. Assim [1, 2, 3] passa a [100, 20, 3].
+   - O próximo passo é gerir a lógica da multiplicação, de maneira apenas pensarmos em multiplicações de números positivos:
+     - caso ambos os operandos sejam positivos faz-se uma multiplicação normal.
+     - caso os operandos tenham sinais opostos, inverte-se o sinal do número negativo e também o sinal da operação final.
+     - caso os operandos sejam ambos negativos, trocam-se ambos os sinais.
+   - De seguida temos de recorrer ao predicado auxiliar `bigger` que devolve um par ordenado (a,b), isto é `a > b` (exceto se `a == b`). Assim sabemos sobre que número temos de usar `padMulBN`. `123 * 45 = [100,20,30] * 5` + `([100,20,30] * 4) * 10`.
+   - É necessário somar todas as operações de multiplicar e para isso usamos `somaBN` e também acrescentamos zeros à lista das multiplicações intermédias caso seja preciso. Pegando no exemplo acima: `123 * 45` seria igual a `([100,20,30] * 5) ++ []` + `([100,20,30] * 4) ++ [0]`. Ou seja, acrescentamos `i` zeros dependendo do índice do dígito operando mais pequeno (invertido) em que nos encontramos.
 7. `divBN`
 
 ## Resposta à alínea 4

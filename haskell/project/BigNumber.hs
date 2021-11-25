@@ -10,13 +10,10 @@ module BigNumber
   )
 where
 
------------------------------------------------------
---                       2.1                       --
------------------------------------------------------
-type BigNumber = [Int]
+type BigNumber = [Int] -- 2.1
 
 -----------------------------------------------------
---                       2.2                       --
+----                     2.2                     ----
 -----------------------------------------------------
 scanner :: String -> BigNumber
 scanner ('-' : '0' : cs) = scanner ('-' : removeLeftZeros ('0' : cs))
@@ -24,13 +21,13 @@ scanner ('-' : c : cs) = - read [c] : map (\c -> read [c :: Char] :: Int) cs
 scanner str = map (\c -> read [c :: Char] :: Int) (removeLeftZeros str)
 
 -----------------------------------------------------
---                       2.3                       --
+----                     2.3                     ----
 -----------------------------------------------------
 output :: BigNumber -> String
 output bn = removeLeftZeros (concatMap show bn)
 
 -----------------------------------------------------
---                       2.4                       --
+----                     2.4                     ----
 -----------------------------------------------------
 {- fix sum result carry outs -}
 carrySum :: BigNumber -> BigNumber
@@ -67,7 +64,7 @@ somaBN (x : xs) (y : ys)
         x' = padLeftZeros x (length y)
 
 -----------------------------------------------------
---                       2.5                       --
+----                     2.5                     ----
 -----------------------------------------------------
 {- fix sub result carry outs -}
 carrySub :: BigNumber -> BigNumber
@@ -109,7 +106,7 @@ subBN (x : xs) (y : ys)
         ltBigger = bigger y (padLeftZeros x (length y))
 
 -----------------------------------------------------
---                       2.6                       --
+----                     2.6                     ----
 -----------------------------------------------------
 {- append i zeros to BN digits in reverse :: [1,2,3] becomes [100,20,3] -}
 padMulBN :: BigNumber -> [BigNumber]
@@ -145,13 +142,19 @@ mulBN x y
             resultAppendZeros xs y i = somaBNs (mapTimesList xs y) ++ replicate i 0
 
 -----------------------------------------------------
---                       2.7                       --
+----                     2.7                     ----
 -----------------------------------------------------
 divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber) -- TODO: implement
-divBN x y = ([0], [0])
+divBN x y
+  | isPositive x && isPositive y = divBNResult x y
+  | isPositive x && isNegative y = changeSignSpecial (divBN x (changeSign y))
+  | isNegative x && isPositive y = changeSignSpecial (divBN (changeSign x) y)
+  | otherwise = divBN (changeSign x) (changeSign y)
+  where
+    divBNResult = ([0],[0])
 
 -----------------------------------------------------
---                        5.                       --
+----                      5.                     ----
 -----------------------------------------------------
 {- only performs division when divisor is not 0 and returns Nothing otherwise -}
 safeDivBN :: BigNumber -> BigNumber -> Maybe (BigNumber, BigNumber)
@@ -159,8 +162,12 @@ safeDivBN x y
   | y /= [0] = Just (divBN x y)
   | otherwise = Nothing
 
+
+
+
+
 -----------------------------------------------------
---           Generic Auxiliar functions            --
+----         Generic Auxiliar functions          ----
 -----------------------------------------------------
 {- remove left hand zeros in string -}
 removeLeftZeros :: String -> String
@@ -242,27 +249,3 @@ somaBNs (x : y : rest) = somaBN (somaBN x y) (somaBNs rest)
 mapTimesList :: [BigNumber] -> Int -> [BigNumber]
 mapTimesList [] _ = []
 mapTimesList (bn : bns) mul = map (* mul) bn : mapTimesList bns mul
-
--- padMul :: BigNumber -> BigNumber
--- padMul bn = padder (reverse bn) 0
---   where
---     padder :: BigNumber -> Int -> BigNumber
---     padder [] _ = []
---     padder (x : xs) i = padder xs (i + 1) ++ [x * 10 ^ i]
---
--- mulBN :: BigNumber -> BigNumber -> BigNumber
--- mulBN x y -- = [0]
---   | isPositive x && isPositive y = mulBNResult x' y'
---   | isPositive x && isNegative y = changeSign (mulBNResult x' (changeSign y'))
---   | isNegative x && isPositive y = changeSign (mulBNResult (changeSign x') y')
---   | otherwise = mulBNResult (changeSign x') (changeSign y')
---   where
---     x' = padMul x
---     y' = padMul y
---     normalize x = scanner (output x)
---     mulBNResult [] _ = []
---     mulBNResult _ [] = []
---     mulBNResult xs (y : ys) =
---       somaBN
---         (normalize [sum (map (* y) xs)]) -- (zipWith (*) (replicate (length xs) y) xs)
---         (mulBNResult xs ys)
