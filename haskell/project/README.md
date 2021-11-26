@@ -3,8 +3,6 @@
 ## TODO
 
 - Div
-- Responder alinea 4
-- Final cleanup
 - Terminar docs
 
 ## Documentação e casos de teste
@@ -71,6 +69,7 @@ fibListaInfinita 15
 Este predicado usa uma função auxiliar `fibInfinitosAux` que cria uma lista infinita de números fibonacci, através do `zipWith (+)` recursivo de duas listas de fibonacci infinitas desfasadas por 1 casa (`lista` e `tail (lista)`). Por terem esse desfasamento, é possível criar uma lista de números fibonacci.
 
 > 0 1 1 2 3 5 (...)
+>
 > &nbsp;&nbsp;&nbsp;0 1 1 2 3 5 (...)
 
 #### Scanner
@@ -148,8 +147,8 @@ subBN (scanner "9873") (scanner "8328")   -- 1545
 subBN (scanner "123") (scanner "-33")     -- 156
 subBN (scanner "123") (scanner "-133")    -- 256
 
-subBN (scanner "-123") (scanner "44")     -- -156
-subBN (scanner "-123") (scanner "144")    -- -256
+subBN (scanner "-123") (scanner "44")     -- -167
+subBN (scanner "-123") (scanner "144")    -- -267
 
 subBN (scanner "-123") (scanner "-33")     -- -90
 subBN (scanner "-123") (scanner "-133")    -- 10
@@ -189,6 +188,7 @@ divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
 divBN (scanner "24") (scanner "12")       -- (2,0)
 divBN (scanner "30") (scanner "12")       -- (2,6)
 divBN (scanner "144") (scanner "12")      -- (12,0)
+divBN (scanner "28385") (scanner "4")     -- (7096,1)
 ```
 
 #### FibRecBN
@@ -234,6 +234,7 @@ fibListaInfinitaBN (scanner "15")
 Este predicado usa uma função auxiliar `fibInfinitosAuxBN` que cria uma lista infinita de `BigNumbers` fibonacci, através do `zipWith somaBN` recursivo de duas listas de fibonacci infinitas desfasadas por 1 casa (`lista` e `tail (lista)`). Por terem esse desfasamento, é possível criar uma lista de números fibonacci.
 
 > [0] [1] [1] [2] [3] [5] (...)
+>
 > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0] [1] [1] [2] [3] [5] (...)
 
 ````
@@ -289,13 +290,27 @@ Executa a divisão quando o divisor não é 0, caso contrário retorna `Nothing`
 
 > Compare as resoluções das alíneas 1 e 3 com tipos `(Int -> Int)`, `(Integer -> Integer)` e `(BigNumber -> BigNumber)`, comparando a sua aplicação a números grandes e verificando qual o maior número que cada uma aceita como argumento.
 
-...
-
-## Documentação de funções auxiliares
+`Integer` define uma precisão arbitrária: não importa quão grand é o número, será representado de acordo com o limite de memória da máquina. This means you never have arithmetic overflows. Por outro lado, `Int` representa um inteiro de 64 bytes, isto é representa números no intervalo `[-2^63, 2^63 - 1]` (em algumas arquiteturas pode ser diferente).
 
 ```haskell
-fibInfinitosAux :: [Int]
-fibInfinitosAux = 0 : 1 : zipWith (+) (tail fibInfinitosAux) fibInfinitosAux
-
--- Cria uma lista infinita de números fibonacci, através do zip recursivo de duas listas de fibonacci desfasadas por 1 casa
+9223372036854775808 :: Int  -- testing 2^63 as Int
+-- resultado: <interactive>:283:1: warning: [-Woverflowed-literals]
 ```
+
+A sequência de fibonacci cresce a um ritmo exponencial, pelo que rapidamente o tipo `Int` perde a representação correta. Chamando o predicado de 1.3 `fibListaInfinita 93` obtemos o primeiro resultado negativo, já que esse número é superior a `(2^63)-1` e `Int` não é unsigned.
+
+Se criarmos um predicado igual ao auxiliar da alínea 1.3 mas para `Integers` em vez de `Int` podemos inspecionar que Integer não tem limite e os números da sequência de fibonacci continuam a ser calculados corretamente, sem entrar num limite em que o sinal troca.
+
+```haskell
+fibInfinitosInteger :: [Integer]
+fibInfinitosInteger = 0 : 1 : zipWith (+) (tail fibInfinitosInteger) fibInfinitosInteger
+```
+
+O tipo `BigNumber` surge para contornar o limite do tipo `Int`, representando os números como listas de inteiros entre `0` e `9`. Tal como a função acima, `fibInfinitosAuxBN` não para de calcular os valores corretos, já que o usa memória livremente.
+
+```haskell
+fibInfinitosAuxBN :: [BigNumber]
+fibInfinitosAuxBN = [0] : [1] : zipWith somaBN fibInfinitosAuxBN (tail fibInfinitosAuxBN)
+```
+
+Concluindo, enquanto o sistema tiver memória os números continuarão a ser calculados corretamente para o tipo `BigNumber` e `Integer`, enquanto que no tipo `Int` de 64 bytes calcula valores incorretos a partir de 93, já que não consegue representar números positivos superiores a `(2^63)-1`

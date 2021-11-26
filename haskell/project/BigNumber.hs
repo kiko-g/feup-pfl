@@ -86,7 +86,7 @@ subBN [] [] = []
 subBN xs [] = xs
 subBN [] ys = ys
 subBN (x : xs) (y : ys)
-  | isPositive (x : xs) && isPositive (y : ys) = subBNResult (x : xs) (y : ys)
+  | isPositive (x : xs) && isPositive (y : ys) = removeLeftZerosBN (subBNResult (x : xs) (y : ys))
   | isPositive (x : xs) && isNegative (y : ys) = somaBN (x : xs) (- y : ys)
   | isNegative (x : xs) && isPositive (y : ys) = changeSign (somaBN (- x : xs) (y : ys))
   | otherwise = subBN (- y : ys) (- x : xs)
@@ -147,14 +147,39 @@ mulBN x y
 -----------------------------------------------------
 ----------------------   2.7   ----------------------
 -----------------------------------------------------
-divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber) -- TODO: implement
-divBN x y
-  | isPositive x && isPositive y = divBNResult x y
-  | isPositive x && isNegative y = changeSignDiv (divBN x (changeSign y))
-  | isNegative x && isPositive y = changeSignDiv (divBN (changeSign x) y)
-  | otherwise = divBN (changeSign x) (changeSign y)
+divCycle :: BigNumber -> BigNumber -> BigNumber -> (BigNumber, BigNumber)
+divCycle x y i
+  | isZero subtraction && y' == x = ([0], depadUntil x y [1])
+  | isZero subtraction = ([-9], [-9])
+  | isNegative subtraction && y' == y = (x, i)
+  | isPositive subtraction && isNegative extra = divCycle subtraction y (i ++ [0])
+  | isPositive subtraction = divCycle subtraction y (somaBN i [1])
+  | otherwise = (x, i ++ [0])
   where
-    divBNResult x y = ([0], [0])
+    y' = padUntil x y
+    subtraction = subBN x y'
+    extra = subBN subtraction y'
+    depadUntil :: BigNumber -> BigNumber -> BigNumber -> BigNumber
+    depadUntil x y r | x == y = r
+    depadUntil x y r = depadUntil x (y ++ [0]) (r ++ [0])
+
+    padUntil :: BigNumber -> BigNumber -> BigNumber
+    padUntil x y
+      | isZero subtraction = y
+      | isPositive subtraction = padUntil x (y ++ [0])
+      | otherwise = init y
+      where
+        subtraction = subBN x y
+
+divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
+divBN [] _ = ([], [])
+divBN _ [] = ([], [])
+divBN x y
+  | uncurry (==) pair = ([1], [0])
+  | y == fst pair = ([0], subBN y x)
+  | otherwise = divCycle x y [0]
+  where
+    pair = bigger x y
 
 -----------------------------------------------------
 ----------------------    5.   ----------------------
@@ -166,7 +191,7 @@ safeDivBN x y
   | otherwise = Nothing
 
 -----------------------------------------------------
-----         Generic Auxiliar functions          ----
+---------    Generic Auxiliar functions     ---------
 -----------------------------------------------------
 {- remove left hand zeros in string -}
 removeLeftZeros :: String -> String
@@ -177,6 +202,7 @@ removeLeftZeros str = str
 
 {- remove left hand zeros in BN -}
 removeLeftZerosBN :: BigNumber -> BigNumber
+removeLeftZerosBN [0] = [0]
 removeLeftZerosBN (0 : xs) = xs
 removeLeftZerosBN bn = bn
 
@@ -192,16 +218,18 @@ isPositive bn = head bn >= 0
 
 {- check if big number is positive -}
 isNegative :: BigNumber -> Bool
+isNegative (0 : xs) = isNegative xs
 isNegative bn = head bn < 0
+
+isZero :: BigNumber -> Bool
+isZero x | x == replicate (length x) 0 = True
+isZero x = False
 
 {- change sign of big number -}
 changeSign :: BigNumber -> BigNumber
 changeSign [] = []
 changeSign (0 : xs) = 0 : changeSign xs
 changeSign (x : xs) = - x : xs
-
-changeSignRemoveZerosBN :: BigNumber -> BigNumber
-changeSignRemoveZerosBN bn = changeSign (removeLeftZerosBN bn)
 
 {- determine bigger BN number -}
 bigger :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
@@ -248,11 +276,3 @@ somaBNs (x : y : rest) = somaBN (somaBN x y) (somaBNs rest)
 mapTimesList :: [BigNumber] -> Int -> [BigNumber]
 mapTimesList [] _ = []
 mapTimesList (bn : bns) mul = map (* mul) bn : mapTimesList bns mul
-
-changeSignDiv :: (BigNumber, BigNumber) -> (BigNumber, BigNumber)
-changeSignDiv (x, []) = (x, [])
-changeSignDiv ([], y) = ([], y)
-changeSignDiv (0 : xs, 0 : ys) = changeSignDiv (xs, ys)
-changeSignDiv (0 : xs, y) = changeSignDiv (xs, y)
-changeSignDiv (x, 0 : ys) = changeSignDiv (x, ys)
-changeSignDiv (x : xs, y : ys) = (- x : xs, - y : ys)
