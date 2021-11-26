@@ -147,29 +147,43 @@ mulBN x y
 -----------------------------------------------------
 ----------------------   2.7   ----------------------
 -----------------------------------------------------
+depadUntil :: BigNumber -> BigNumber -> BigNumber -> BigNumber
+depadUntil x y r | x == y = r
+depadUntil x y r = depadUntil x (y ++ [0]) (r ++ [0])
+
+padUntil :: BigNumber -> BigNumber -> BigNumber
+padUntil x y
+  | isZero subtr = y
+  | isPositive subtr = padUntil x (y ++ [0])
+  | otherwise = init y
+  where
+    subtr = subBN x y
+
+-- | isNegative subtr = divCycle x y (q ++ [0])
+-- | isZero subtr = ([0], depadUntil x y [1])
+-- | isPositive subtr = divCycle subtr y (somaBN q [1])
+-- | y == fst (bigger x y) = (q, subBN y x)
+-- | otherwise = (q, x)
+divHelper :: BigNumber -> BigNumber -> BigNumber -> (BigNumber, BigNumber)
+divHelper x y q
+  | isZero sub = (somaBN q [1], [0])
+  | isNegative sub = (q, x)
+  | otherwise = divHelper sub y (somaBN q [1])
+  where
+    sub = subBN x y
+
 divCycle :: BigNumber -> BigNumber -> BigNumber -> (BigNumber, BigNumber)
-divCycle x y i
-  | isZero subtraction && y' == x = ([0], depadUntil x y [1])
-  | isZero subtraction = ([-9], [-9])
-  | isNegative subtraction && y' == y = (x, i)
-  | isPositive subtraction && isNegative extra = divCycle subtraction y (i ++ [0])
-  | isPositive subtraction = divCycle subtraction y (somaBN i [1])
-  | otherwise = (x, i ++ [0])
+divCycle [] _ _ = ([-6], [-6])
+divCycle _ [] _ = ([-7], [-7])
+divCycle _ _ [] = ([-8], [-8])
+divCycle x y q
+  | isNegative subtr && y == padUntil x y = (q, x)
+  | isPositive subtr = divCycle x' y (q ++ q')
+  | otherwise = ([-9], [-9])
   where
     y' = padUntil x y
-    subtraction = subBN x y'
-    extra = subBN subtraction y'
-    depadUntil :: BigNumber -> BigNumber -> BigNumber -> BigNumber
-    depadUntil x y r | x == y = r
-    depadUntil x y r = depadUntil x (y ++ [0]) (r ++ [0])
-
-    padUntil :: BigNumber -> BigNumber -> BigNumber
-    padUntil x y
-      | isZero subtraction = y
-      | isPositive subtraction = padUntil x (y ++ [0])
-      | otherwise = init y
-      where
-        subtraction = subBN x y
+    subtr = subBN x (padUntil x y)
+    (q', x') = divHelper x y' [0]
 
 divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
 divBN [] _ = ([], [])
@@ -177,7 +191,7 @@ divBN _ [] = ([], [])
 divBN x y
   | uncurry (==) pair = ([1], [0])
   | y == fst pair = ([0], subBN y x)
-  | otherwise = divCycle x y [0]
+  | otherwise = divCycle x y []
   where
     pair = bigger x y
 
