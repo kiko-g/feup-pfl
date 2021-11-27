@@ -55,7 +55,7 @@ fibRec :: (Integral a) => a -> a -- 1.1
 ```haskell
 fibRec 5
 fibRec 10
-fibRec 15
+fibRec 25
 ```
 
 Parte dos casos base `fibRec 0 = 0` e `fibRec 1 = 1` e recursivamente soma os pares fibonacci `(n-2)` e `(n-1)`.
@@ -69,7 +69,7 @@ fibLista :: Int -> Int -- 1.2
 ```haskell
 fibLista 5
 fibLista 10
-fibLista 15
+fibLista 30
 ```
 
 Parte dos casos base `fibRec 0 = 0` e `fibRec 1 = 1` e soma os pares fibonacci `n-2` e `(n-1)`, selecionado (usando `!!`) os elementos `n-2` e `n-1` da lista de fibonacci de `0` até `n`
@@ -81,9 +81,9 @@ fibListaInfinita :: Int -> Int
 ```
 
 ```haskell
-fibListaInfinita 5
-fibListaInfinita 10
 fibListaInfinita 15
+fibListaInfinita 40
+fibListaInfinita 60
 ```
 
 Este predicado usa uma função auxiliar `fibInfinitosAux` que cria uma lista infinita de números fibonacci, através do `zipWith (+)` recursivo de duas listas de fibonacci infinitas desfasadas por 1 casa (`lista` e `tail (lista)`). Por terem esse desfasamento, é possível criar uma lista de números fibonacci.
@@ -212,8 +212,8 @@ fibRecBN :: BigNumber -> BigNumber
 
 ```haskell
 fibRecBN (scanner "5")
-fibRecBN (scanner "10")
 fibRecBN (scanner "15")
+fibRecBN (scanner "20")
 ```
 
 Parte dos casos base `fibRec 0 = 0` e `fibRec 1 = 1` e recursivamente soma os pares fibonacci `(n-2)` e `(n-1)`, usando somaBN.
@@ -225,9 +225,9 @@ fibListaBN :: BigNumber -> BigNumber
 ```
 
 ```haskell
-fibListaBN (scanner "5")
 fibListaBN (scanner "10")
 fibListaBN (scanner "15")
+fibListaBN (scanner "20")
 ```
 
 Usa uma função nova `nthBN` para substituir o operador !! nos BigNumbers e partindo dos casos base `fibListaBN [0] = [0]` e `fibListaBN [1] = [1]`, soma os pares fibonacci `n-2` e `(n-1)`, selecionado com `nthBN` os elementos `n-2` e `n-1` da lista de fibonacci de `0` até infinito, já que para não ser infinito precisaríamos de ter o valor absoluto inteiro do BN `n`.
@@ -239,9 +239,9 @@ fibListaInfinitaBN :: BigNumber -> BigNumber
 ```
 
 ```haskell
-fibListaInfinitaBN (scanner "5")
-fibListaInfinitaBN (scanner "10")
 fibListaInfinitaBN (scanner "15")
+fibListaInfinitaBN (scanner "60")
+fibListaInfinitaBN (scanner "100")
 ```
 
 Este predicado usa uma função auxiliar `fibInfinitosAuxBN` que cria uma lista infinita de `BigNumbers` fibonacci, através do `zipWith somaBN` recursivo de duas listas de fibonacci infinitas desfasadas por 1 casa (`lista` e `tail (lista)`). Por terem esse desfasamento, é possível criar uma lista de números fibonacci.
@@ -257,9 +257,9 @@ safeDivBN :: BigNumber -> BigNumber -> Maybe (BigNumber, BigNumber)
 ```
 
 ```haskell
-divBN (scanner "144") (scanner "12")      -- (12,0)
-divBN (scanner "148") (scanner "12")      -- (12,4)
-divBN (scanner "148") (scanner "0")       -- Nothing
+safeDivBN (scanner "144") (scanner "12")      -- (12,0)
+safeDivBN (scanner "148") (scanner "12")      -- (12,4)
+safeDivBN (scanner "148") (scanner "0")       -- Nothing
 ```
 
 Executa a divisão quando o divisor não é 0, caso contrário retorna `Nothing`
@@ -290,7 +290,7 @@ O resultado é obtido usando `zipWith (+) n1 n2`. Tendo obtido o resultado, sem 
 
 - caso `x` e `y` sejam ambos positivos é feita uma soma normal com `sumBNResult`.
 - caso `x` tenha sinal diferente de `y`, a soma é transformada em subtração (`subBN`)
-- caso ambos `x` e `y` sejam ambos negativos a soma é transformada em - `- ((-x) + (-y))`
+- caso ambos `x` e `y` sejam ambos negativos a soma é transformada em `- ((-x) + (-y))`
 
 #### 5. SubBN
 

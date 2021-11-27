@@ -94,6 +94,7 @@ subBN (x : xs) (y : ys)
     {- calculate sub result. numbers must have the same length, so we pad them with zeros if need be -}
     subBNResult :: BigNumber -> BigNumber -> BigNumber
     subBNResult x y
+      | uncurry (==) eqBigger = [0]
       | length x == length y && x == fst eqBigger = carrySub (uncurry (zipWith (-)) eqBigger)
       | length x == length y && y == fst eqBigger = changeSign (carrySub (uncurry (zipWith (-)) eqBigger))
       | length x > length y && x == fst gtBigger = carrySub (uncurry (zipWith (-)) gtBigger)
