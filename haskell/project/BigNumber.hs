@@ -116,10 +116,24 @@ padMulBN bn = padder (reverse bn) 0
     padder [] _ = []
     padder (x : xs) i = padder xs (i + 1) ++ [x : replicate i 0]
 
+{- fix carry in multiplication -}
+carryMul :: BigNumber -> BigNumber
+carryMul bn = reverse (carryMulRev (reverse bn))
+  where
+    carryMulRev :: BigNumber -> BigNumber
+    carryMulRev [] = []
+    carryMulRev [a]
+      | a == 0 = [0]
+      | a < 10 = [a]
+      | otherwise = a `mod` 10 : carryMulRev [a `div` 10]
+    carryMulRev (a : b : rest)
+      | a > 10 = a `mod` 10 : carryMulRev (b + a `div` 10 : rest)
+      | otherwise = a : carryMulRev (b : rest)
+
 {- calculates multiplication for 2 BigNumbers -}
 mulBN :: BigNumber -> BigNumber -> BigNumber
 mulBN x y
-  | isPositive x && isPositive y = mulBNResult x y
+  | isPositive x && isPositive y = carryMul (mulBNResult x y)
   | isPositive x && isNegative y = changeSign (mulBN x (changeSign y))
   | isNegative x && isPositive y = changeSign (mulBN (changeSign x) y)
   | otherwise = mulBN (changeSign x) (changeSign y)
@@ -147,38 +161,40 @@ mulBN x y
 -----------------------------------------------------
 ----------------------   2.7   ----------------------
 -----------------------------------------------------
+padUntil :: BigNumber -> BigNumber -> BigNumber
+padUntil x y
+  | isZero subtr = y
+  | isPositive subtr = padUntil x (y ++ [0])
+  | otherwise = init y
+  where
+    subtr = subBN x y
+
 divOp :: BigNumber -> BigNumber -> BigNumber -> (BigNumber, BigNumber)
 divOp x y q
+  | null q = divOp x y [0]
   | isZero sub = (somaBN q [1], [0])
   | isNegative sub = (q, x)
   | otherwise = divOp sub y (somaBN q [1])
   where
     sub = subBN x y
 
-divCycle :: BigNumber -> BigNumber -> BigNumber -> (BigNumber, BigNumber)
-divCycle x y q
-  | isNegative subtr || y == padUntil x y = (q ++ q', x')
-  | isPositive subtr = divCycle x' y (q ++ q')
-  | otherwise = ([-9], [-9])
+divCycle :: BigNumber -> BigNumber -> BigNumber -> BigNumber -> (BigNumber, BigNumber)
+divCycle x y y' q
+  | y == y' = (q', x')
+  | otherwise = divCycle x y (init y') (q ++ q')
   where
-    y' = padUntil x y
-    subtr = subBN x (padUntil x y)
+    subtr = subBN x y'
     (q', x') = divOp x y' [0]
-    padUntil :: BigNumber -> BigNumber -> BigNumber
-    padUntil x y
-      | isZero subtr = y
-      | isPositive subtr = padUntil x (y ++ [0])
-      | otherwise = init y
-      where
-        subtr = subBN x y
 
 divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
 divBN x y
   | uncurry (==) pair = ([1], [0])
+  | uncurry (==) (fst pair, y') = (1 : drop (length y) x, [0])
   | y == fst pair = ([0], subBN y x)
-  | otherwise = divCycle x y []
+  | otherwise = divCycle x y y' []
   where
     pair = bigger x y
+    y' = padUntil x y
 
 -----------------------------------------------------
 ----------------------    5.   ----------------------

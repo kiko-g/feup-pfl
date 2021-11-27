@@ -178,6 +178,8 @@ mulBN (scanner "-123") (scanner "-33")     -- 4059
 mulBN (scanner "-123") (scanner "-133")    -- 16359
 ```
 
+Multiplica dois `BigNumbers`. Caso os números não sejam ambos positivos, transforma operações de sinais opostos em multiplicações de números positivos, mas com sinal final invertido e no caso de serem ambos negativos inverte o sinal de ambos operandos.
+
 #### DivBN
 
 ```haskell
@@ -283,8 +285,17 @@ Executa a divisão quando o divisor não é 0, caso contrário retorna `Nothing`
      - caso os operandos tenham sinais opostos, inverte-se o sinal do número negativo e também o sinal da operação final.
      - caso os operandos sejam ambos negativos, trocam-se ambos os sinais.
    - De seguida temos de recorrer ao predicado auxiliar `bigger` que devolve um par ordenado (a,b), isto é `a > b` (exceto se `a == b`). Assim sabemos sobre que número temos de usar `padMulBN`. `123 * 45 = [100,20,30] * 5` + `([100,20,30] * 4) * 10`.
-   - É necessário somar todas as operações de multiplicar e para isso usamos `somaBN` e também acrescentamos zeros à lista das multiplicações intermédias caso seja preciso. Pegando no exemplo acima: `123 * 45` seria igual a `([100,20,30] * 5) ++ []` + `([100,20,30] * 4) ++ [0]`. Ou seja, acrescentamos `i` zeros dependendo do índice do dígito operando mais pequeno (invertido) em que nos encontramos.
-7. `divBN`
+   - É necessário somar todas as operações de multiplicar e para isso usamos `somaBN` e também acrescentamos zeros à lista das multiplicações intermédias caso seja preciso. Pegando no exemplo acima: `123 * 45` seria igual a `([100,20,30] * 5) ++ []` + `([100,20,30] * 4) ++ [0]`. Ou seja, acrescentamos `i` zeros dependendo do índice do dígito operando mais pequeno (invertido) em que nos encontramos. No final aplicamos a função `carryMul` para concertar os casos em que um elemento da lista ficou superior a 10: resumidamente a casa com excesso fica com o `a mod 10` e o proximo elemento é `b + a div 10`.
+7. Para implementar `divBN` (assumindo números não negativos) a nossa abordagem foi a seguinte:
+   - Começar por fazer uma verificação dos números recebidos usando o predicado já mencionado `bigger` que retorna o par ordenado `(x,y)`: 
+      - se `x < y` o resultado será `(0, x - y)`
+      - se `x == y` o resultado será `(1, 0)`
+      - se `x == y * 10^n` para qualquer `n >= 1`, o resultado será `(n, 0)`
+   - Depois de feitas estas otimizações, podemos avançar e sabemos que `x > y`. Assim sendo o primeiro passo é fazer um `padding` com 0s à direita ao valor de `y` até ao último valor em que `x > y'`, ontendo um valor `y'`. Por exemplo se `x` for `345` e `y` for `3`, `y'` seria `300`, já que `3000` já excede `345`.
+   - Seguidamente vamos ver _quantos y' cabem em x_, usando `subBN`. Pegando no caso anterior de apenas cabe 1 (`345 - 300 = 45`). Assim o nosso quociente para já é [1], uma lista que vai ficar à espera dos próximos valores.
+   - A próxima iteração vai usar `x = 45` (_resto_) `y' = init y'`, de maneira a deixar cair um `0` do fim. Caso `init y' == y` sabemos que estamos na última iteração. Para já essa igualdade é falsa `30 /= 3`. A seguir, verificamos que em `45` só cabe um `30`, pelo que o quociente passa a ser [1,1] e o novo x será `45 - 30 = 15`.
+   - A próxima iteração é a final, já que `init [3,0] == [3] == y`. Resta-nos subtrair `3` a `15` até (exclusivé) que o número seja `< 0`. 
+   - `15 - 3*5 = 0`, logo o nosso quociente passa a ser [1,1] ++ [5], com resto `0`.
 
 ## Resposta à alínea 4
 
