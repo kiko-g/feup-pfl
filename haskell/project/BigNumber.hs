@@ -161,6 +161,8 @@ mulBN x y
 -----------------------------------------------------
 ----------------------   2.7   ----------------------
 -----------------------------------------------------
+{- pads y with right hand side zeros until y' > x -}
+{- i.e: x = 345 y = 3 => y' = 300 -}
 padUntil :: BigNumber -> BigNumber -> BigNumber
 padUntil x y
   | isZero subtr = y
@@ -169,6 +171,8 @@ padUntil x y
   where
     subtr = subBN x y
 
+{- this function is meant to be used only in the context of divCycle -}
+{- subtracts y as many times as possible to x, before x becomes negative -}
 divOp :: BigNumber -> BigNumber -> BigNumber -> (BigNumber, BigNumber)
 divOp x y q
   | null q = divOp x y [0]
@@ -178,6 +182,7 @@ divOp x y q
   where
     sub = subBN x y
 
+{- peforms the cycle of division, calls divOp for every new x (starter x and new x values from divOp rest) -}
 divCycle :: BigNumber -> BigNumber -> BigNumber -> BigNumber -> (BigNumber, BigNumber)
 divCycle x y y' q
   | y == y' = (q', x')
@@ -186,6 +191,7 @@ divCycle x y y' q
     subtr = subBN x y'
     (q', x') = divOp x y' [0]
 
+{- main function of BN division. optimizes some cases before entering divCycle -}
 divBN :: BigNumber -> BigNumber -> (BigNumber, BigNumber)
 divBN x y
   | uncurry (==) pair = ([1], [0])
@@ -280,14 +286,14 @@ biggerDrawAux x y i
     a = x !! i
     b = y !! i
 
-{- prelude sum function for BigNumbers -}
+{- prelude sum function but for BigNumbers -}
 somaBNs :: [BigNumber] -> BigNumber
 somaBNs [] = []
 somaBNs [x] = x
 somaBNs [x, y] = somaBN x y
 somaBNs (x : y : rest) = somaBN (somaBN x y) (somaBNs rest)
 
-{- multiply every big number by an integer -}
+{- multiply every big number on a list by an integer -}
 mapTimesList :: [BigNumber] -> Int -> [BigNumber]
 mapTimesList [] _ = []
 mapTimesList (bn : bns) mul = map (* mul) bn : mapTimesList bns mul

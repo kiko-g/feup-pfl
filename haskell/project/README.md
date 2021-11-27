@@ -1,30 +1,31 @@
 # Haskell Project
 
-- [Documentação e casos de teste](#Documentação-e-casos-de-teste)
+- [Documentação e casos de teste](#documentação-e-casos-de-teste)
   - Fibonacci
-    - [FibRec](#FibRec)
-    - [FibLista](#FibLista)
-    - [FibListaInfinita](#FibListaInfinita)
+    - [FibRec](#fibrec)
+    - [FibLista](#fiblista)
+    - [FibListaInfinita](#fiblistainfinita)
   - BigNumbers
-    - [Scanner](#Scanner)
-    - [Output](#Output)
-    - [SomaBN](#SomaBN)
-    - [SubBN](#SubBN)
-    - [MulBN](#MulBN)
-    - [DivBN](#DivBN)
+    - [Scanner](#scanner)
+    - [Output](#output)
+    - [SomaBN](#somabn)
+    - [SubBN](#subbn)
+    - [MulBN](#mulbn)
+    - [DivBN](#divbn)
+    - [SafeDivBN](#safedivbn)
   - Fibonacci com BigNumbers
-    - [FibRecBN](#FibRecBN)
-    - [FibListaBN](#FibListaBN)
-    - [FibListaInfinitaBN](#FibListaInfinitaBN)
-- [Estratégias para BigNumbers](#Estratégias-para-BigNumbers)
-  - [1. Tipo](#1-Tipo)
-  - [2. Scanner](#2-Scanner)
-  - [3. Output](#3-Output)
-  - [4. somaBN](#4-SomaBN)
-  - [5. SubBN](#5-SubBN)
-  - [6. MulBN](#6-MulBN)
-  - [7. DivBN](#7-DivBN)
-- [Resposta à alínea 4](#Resposta-à-alínea-4)
+    - [FibRecBN](#fibrecbn)
+    - [FibListaBN](#fiblistabn)
+    - [FibListaInfinitaBN](#fiblistainfinitabn)
+- [Estratégias para BigNumbers](#estratégias-para-bignumbers)
+  - [1. Tipo](#1-tipo)
+  - [2. Scanner](#2-scanner)
+  - [3. Output](#3-output)
+  - [4. somaBN](#4-somabn)
+  - [5. SubBN](#5-subbn)
+  - [6. MulBN](#6-mulbn)
+  - [7. DivBN](#7-divbn)
+- [Resposta à alínea 4](#resposta-à-alínea-4)
 
 ## Documentação e casos de teste
 
@@ -44,8 +45,6 @@ testcase 3
 ```
 
 Breve descrição do funcionamento do predicado.
-
-<div style="page-break-after: always;"></div>
 
 ### FibRec
 
@@ -134,25 +133,21 @@ somaBN :: BigNumber -> BigNumber -> BigNumber
 
 ```haskell
 somaBN (scanner "5") (scanner "17")        -- 22
-somaBN (scanner "123") (scanner "246")     -- 369
 somaBN (scanner "124") (scanner "987")     -- 1111
 somaBN (scanner "43632") (scanner "83729") -- 127361
 somaBN (scanner "99929834363") (scanner "98934383729") -- 198864218092
-
 somaBN (scanner "123") (scanner "-34")     -- 89
 somaBN (scanner "123") (scanner "-130")    -- -7
 somaBN (scanner "23") (scanner "-124")     -- -101
-
 somaBN (scanner "-123") (scanner "33")     -- -90
 somaBN (scanner "-123") (scanner "133")    -- 10
 somaBN (scanner "-123") (scanner "124")    -- 1
-
 somaBN (scanner "-123") (scanner "-33")     -- -156
 somaBN (scanner "-123") (scanner "-133")    -- -256
 somaBN (scanner "-9371") (scanner "-29358") -- -38729
 ```
 
-Soma dois `BigNumbers`. Caso os números não sejam ambos positivos, transforma somas de sinais opostos em subtrações e no caso de serem ambos negativos inverte o sinal dos operandos e da soma final. Antes de somar as duas listas com `zipWith (+) bn1 bn2`, acrescenta zeros à esquerda ao número menos comprido, para as listas serem correspondentes. Processa os _carry outs_, subtraindo 10 a um dígito e acrescentar um ao próximo.
+Soma dois `BigNumbers`. Caso os números não sejam ambos positivos, transforma somas de sinais opostos em subtrações e no caso de serem ambos negativos inverte o sinal dos operandos e da soma final. Antes de somar as duas listas com `zipWith (+) bn1 bn2`, acrescenta zeros à esquerda ao número menos comprido, para as listas serem correspondentes. Processa os _carry outs_, subtraindo 10 a um dígito e acrescentar um ao próximo. Mais detalhes sobre este predicado no ponto 4 na **secção de estratégias**.
 
 ### SubBN
 
@@ -163,21 +158,16 @@ subBN :: BigNumber -> BigNumber -> BigNumber
 ```haskell
 subBN (scanner "123") (scanner "123")     -- 0
 subBN (scanner "123") (scanner "246")     -- -123
-subBN (scanner "123") (scanner "12")      -- 111
-subBN (scanner "9873") (scanner "8328")   -- 1545
 subBN (scanner "9839289873") (scanner "983488328") -- 8855801545
-
 subBN (scanner "123") (scanner "-33")     -- 156
 subBN (scanner "123") (scanner "-133")    -- 256
-
 subBN (scanner "-123") (scanner "44")     -- -167
 subBN (scanner "-123") (scanner "144")    -- -267
-
 subBN (scanner "-123") (scanner "-33")     -- -90
 subBN (scanner "-123") (scanner "-133")    -- 10
 ```
 
-Subtrai dois `BigNumbers`. Caso os números não sejam ambos positivos, transforma subtrações de sinais opostos em somas e no caso de serem ambos negativos inverte o sinal dos operandos e da subtração final. Antes de somar as duas listas com `zipWith (+) bn1 bn2`, acrescenta zeros à esquerda ao número menos comprido, para as listas serem correspondentes. Para além disso subtrai o maior número ao menor número. Processa os _carry outs_, subtraindo 10 a um dígito e acrescentar um ao próximo.
+Subtrai dois `BigNumbers`. Caso os números não sejam ambos positivos, transforma subtrações de sinais opostos em somas e no caso de serem ambos negativos inverte o sinal dos operandos e da subtração final. Antes de subtrair as duas listas com `zipWith (-) bn1 bn2`, acrescenta zeros à esquerda ao número menos comprido, para as listas serem correspondentes. Para além disso subtrai o maior número ao menor número. Processa os _carry outs_, acrescentando 10 ao dígito atual e decrementando um ao próximo **ou** decrementando 10 ao dígito atual e incrementando 1 ao próximo. Mais detalhes sobre este predicado no ponto 5 na **secção de estratégias**.
 
 ### MulBN
 
@@ -187,22 +177,15 @@ mulBN :: BigNumber -> BigNumber -> BigNumber
 
 ```haskell
 mulBN (scanner "12") (scanner "24")       -- 288
-mulBN (scanner "123") (scanner "12")      -- 1476
-mulBN (scanner "123") (scanner "123")     -- 15129
 mulBN (scanner "123") (scanner "246")     -- 30258
 mulBN (scanner "938123") (scanner "99382246") -- 93232770764258
-
 mulBN (scanner "123") (scanner "-33")     -- -4059
-mulBN (scanner "123") (scanner "-133")    -- -16359
-
-mulBN (scanner "-123") (scanner "33")     -- -4059
 mulBN (scanner "-123") (scanner "133")    -- -16359
-
 mulBN (scanner "-123") (scanner "-33")     -- 4059
 mulBN (scanner "-123") (scanner "-133")    -- 16359
 ```
 
-Multiplica 2 BigNumbers. Caso os operandos tenham sinais opostos, inverte-se o sinal do número negativo e também o sinal da operação final e se os operandos forem ambos negativos, trocam-se ambos os sinais dos operandos. Começa por ver qual o maior número e transforma-o acrescentando 0s de acordo com a ordem de cada dígito: `[1, 2, 3]` passa a `[100, 20, 3]`. Esse número transformado será multiplicado por cada um dos dígitos do outro número, acrescentando um 0 em cada parcela, consoante a ordem: `123*45` = `([100,20,30] * 5) ++ []` + `([100,20,30] * 4) ++ [0]`. Mais detalhes sobre este predicado no ponto 6 em [secção de estratégias](#Estratégias-para-BigNumbers).
+Multiplica 2 `BigNumbers`. Caso os operandos tenham sinais opostos, inverte-se o sinal do número negativo e também o sinal da operação final e se os operandos forem ambos negativos, trocam-se ambos os sinais dos operandos. Começa por ver qual o maior número e transforma-o acrescentando 0s de acordo com a ordem de cada dígito: `[1, 2, 3]` passa a `[100, 20, 3]`. Esse número transformado será multiplicado por cada um dos dígitos do outro número, acrescentando um 0 em cada parcela, consoante a ordem: `123*45` = `([100,20,30] * 5) ++ []` + `([100,20,30] * 4) ++ [0]`. Mais detalhes sobre este predicado no ponto 6 na **secção de estratégias**.
 
 ### DivBN
 
@@ -215,21 +198,11 @@ divBN (scanner "24") (scanner "12")       -- (2,0)
 divBN (scanner "30") (scanner "12")       -- (2,6)
 divBN (scanner "144") (scanner "12")      -- (12,0)
 divBN (scanner "28385") (scanner "4")     -- (7096,1)
+divBN (scanner "333240") (scanner "212")  -- (1571, 188)
+divBN (scanner "898240") (scanner "92")   -- (9763, 44)
 ```
 
-Para implementar `divBN` (assumindo números não negativos) a nossa abordagem foi a seguinte:
-
-- Começar por fazer uma verificação dos números recebidos usando o predicado já mencionado `bigger` que retorna o par ordenado `(x,y)`:
-  - se `x < y` o resultado será `(0, x - y)`
-  - se `x == y` o resultado será `(1, 0)`
-  - se `x == y * 10^n` para qualquer `n >= 1`, o resultado será `(n, 0)`
-- Depois de feitas estas otimizações, podemos avançar e sabemos que `x > y`. Assim sendo o primeiro passo é fazer um `padding` com 0s à direita ao valor de `y` até ao último valor em que `x > y'`, obtendo um valor `y'`. Por exemplo se `x` for `345` e `y` for `3`, `y'` seria `300`, já que `3000` já excede `345`.
-- Seguidamente vamos ver _quantos y' cabem em x_, usando `subBN`. Pegando no caso anterior de apenas cabe 1 (`345 - 300 = 45`). Assim o nosso quociente para já é [1], uma lista que vai ficar à espera dos próximos valores.
-- A próxima iteração vai usar `x = 45` (_resto_) `y' = init y'`, de maneira a deixar cair um `0` do fim. Caso `init y' == y` sabemos que estamos na última iteração. Para já essa igualdade é falsa: `30 /= 3`. A seguir verificamos que em `45` só cabe um `30`, pelo que o quociente passa a ser [1,1] e o novo x será `45 - 30*1 = 15`.
-- A próxima iteração é a final, já que `init [3,0] == [3] == y`. Resta-nos subtrair `3` a `15` até (exclusivé) que o número seja `< 0`.
-- `15 - 3*5 = 0`, logo o nosso quociente passa a ser [1,1] ++ [5], com resto `0`.
-
-Mais detalhes sobre este predicado no ponto 7 na [secção de estratégias](#Estratégias-para-BigNumbers).
+Divide 2 `BigNumbers`. Assume-se que os números são ambos positivos. Se `x < y` o resultado é imediato: `(0, subBN y x)` . Caso contrário esta função encontra o resultado da divisão entrando num ciclo que transforma `y` num número (`y'`) mais perto de `x`, sem o exceder (i.e.: `x=355`, `y=3`, `y'=30`). Ciclicamente verifica quantas vezes 30 cabe em 255 e quando terminar coloca esse valor na lista fazendo append, valor que será sempre <= 10. Próxima iteração passa por pegar no resto (`255-30*8=15`) e usar `init y'` (`[3]`). A ultima iteração deste processo ocorre com quando `y' == y`. Para mais detalhes ver ponto 6 da **secção de estratégias**.
 
 ### FibRecBN
 
@@ -323,8 +296,8 @@ O resultado é obtido usando `zipWith (+) n1 n2`. Tendo obtido o resultado, sem 
 
 Para definir `subBN` usámos uma abordagem semelhante à da `somaBN` com as seguintes diferenças relevantes:
 
-- Usamos `carrySub`, que verifica dígitos do _BigNumber_ resultante inferiores a 0 e mais alguns casos críticos para o resultado.
-- É usado `zipWith (-)` e algumas subtrações são transformadas em somas, por simplicidade.
+- Usamos `carrySub`, que verifica dígitos do _BigNumber_ resultante inferiores a 0 e mais alguns casos críticos para o resultado, como quando o último dígito é 0 removê-lo.
+- É usado `zipWith (-)` e algumas subtrações são transformadas em somas, por simplicidade. Assim, quando estamos perante uma subtração de sinais opostos, podemos olhar para o valor absoluto dos números e trocar o sinal final. No caso em que são ambos negativos podemos inverter o sinal dos operandos e fazer uma subtração.
 - Criamos uma função auxiliar `bigger` que se encarrega de retornar um par dos números ordenados, sabendo assim que número é maior e tornando mais fácil a subtração.
 
 #### 6. MulBN
@@ -382,3 +355,10 @@ fibInfinitosAuxBN = [0] : [1] : zipWith somaBN fibInfinitosAuxBN (tail fibInfini
 ```
 
 Concluindo, enquanto o sistema tiver memória os números continuarão a ser calculados corretamente para o tipo `BigNumber` e `Integer`, enquanto que no tipo `Int` de 64 bytes calcula valores incorretos a partir de 93, já que não consegue representar números positivos superiores a `(2^63)-1`
+
+---
+
+**Considerações Finais**
+
+- As funções auxiliares mais genéricas estão no fim do ficheiro `BigNumber.hs` e comentadas.
+- Outras funções auxiliares menos genéricas e mais específicas de uma alínea foram agrupadas na sua secção que está bem delimitada com comentários.
