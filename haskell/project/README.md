@@ -331,23 +331,23 @@ Para implementar `divBN` (assumindo números não negativos) a nossa abordagem f
 
 > Compare as resoluções das alíneas 1 e 3 com tipos `(Int -> Int)`, `(Integer -> Integer)` e `(BigNumber -> BigNumber)`, comparando a sua aplicação a números grandes e verificando qual o maior número que cada uma aceita como argumento.
 
-`Integer` define uma precisão arbitrária: não importa quão grand é o número, será representado de acordo com o limite de memória da máquina. This means you never have arithmetic overflows. Por outro lado, `Int` representa um inteiro de 64 bytes, isto é representa números no intervalo `[-2^63, 2^63 - 1]` (em algumas arquiteturas pode ser diferente).
+`Integer` define uma precisão arbitrária: não importa quão grand é o número, será representado de acordo com o limite de memória da máquina. Por outro lado, `Int` representa um inteiro de 64 bytes, isto é, representa números no intervalo `[-2^63, 2^63 - 1]` (em algumas arquiteturas pode ser diferente) pelo que haverá overflows e consequentemente representações incorretas.
 
 ```haskell
 9223372036854775808 :: Int  -- testing 2^63 as Int
 -- resultado: <interactive>:283:1: warning: [-Woverflowed-literals]
 ```
 
-A sequência de fibonacci cresce a um ritmo exponencial, pelo que rapidamente o tipo `Int` perde a representação correta. Chamando o predicado de 1.3 `fibListaInfinita 93` obtemos o primeiro resultado negativo, já que esse número é superior a `(2^63)-1` e `Int` não é unsigned.
+A sequência de fibonacci cresce a um ritmo exponencial, pelo que rapidamente o tipo `Int` perde a representação correta. Chamando o predicado de 1.3 `fibListaInfinita 93` obtemos o primeiro resultado negativo, já que esse número é superior a `(2^63)-1` e `Int` não é unsigned. O valor máximo para `Int` é portanto 92.
 
-Se criarmos um predicado igual ao auxiliar da alínea 1.3 mas para `Integers` em vez de `Int` podemos inspecionar que Integer não tem limite e os números da sequência de fibonacci continuam a ser calculados corretamente, sem entrar num limite em que o sinal troca.
+Se criarmos um predicado igual ao auxiliar da alínea 1.3 mas para `Integer` em vez de `Int` podemos comprovar que `Integer` não tem limite e os números da sequência de fibonacci continuam a ser calculados corretamente, sem entrar num limite em que o sinal troca. Este [ficheiro txt na web](https://oeis.org/A000045/b000045.txt) contém os primeiros 2000 números Fibonacci e assim podemos comprovar que a função não falha a calcular.
 
 ```haskell
 fibInfinitosInteger :: [Integer]
 fibInfinitosInteger = 0 : 1 : zipWith (+) (tail fibInfinitosInteger) fibInfinitosInteger
 ```
 
-O tipo `BigNumber` surge para contornar o limite do tipo `Int`, representando os números como listas de inteiros entre `0` e `9`. Tal como a função acima, `fibInfinitosAuxBN` não para de calcular os valores corretos, já que o usa memória livremente.
+O tipo `BigNumber` surge para contornar as limitações dos tipos inteiros, representando os números como listas de inteiros entre `0` e `9`. Tal como a função acima, `fibInfinitosAuxBN` nunca chega a calcular valores incorretos, já que usa memória livremente.
 
 ```haskell
 fibInfinitosAuxBN :: [BigNumber]
