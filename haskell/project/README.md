@@ -21,7 +21,7 @@
   - [1. Tipo](#1-tipo)
   - [2. Scanner](#2-scanner)
   - [3. Output](#3-output)
-  - [4. somaBN](#4-somabn)
+  - [4. SomaBN](#4-somabn)
   - [5. SubBN](#5-subbn)
   - [6. MulBN](#6-mulbn)
   - [7. DivBN](#7-divbn)
