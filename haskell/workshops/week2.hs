@@ -64,35 +64,33 @@ cifra :: Int -> String -> String
 cifra k s = [desloca k x | x <- s]
 
 -- 2.10 a)
-andR :: [Bool] -> Bool
-andR [] = True
-andR (x : xs) = x && andR xs
+and' :: [Bool] -> Bool
+and' xs = foldr (&&) True xs
 
 -- 2.10 b)
-orR :: [Bool] -> Bool
-orR [] = False
-orR (x : xs) = x || orR xs
+or' :: [Bool] -> Bool
+or' xs = foldr (||) False xs
 
 -- 2.10 c)
-concatR :: [[a]] -> [a]
-concatR [] = []
-concatR ([] : ys) = concatR ys
-concatR ((x : xs) : ys) = x : concatR (xs : ys)
+concat' :: [[a]] -> [a]
+concat' [] = []
+concat' ([] : ys) = concat' ys
+concat' ((x : xs) : ys) = x : concat' (xs : ys)
 
 -- 2.10 d)
-replicateR :: Int -> a -> [a]
-replicateR 0 x = []
-replicateR n x = x : replicateR (n -1) x
+replicate' :: Int -> a -> [a]
+replicate' 0 x = []
+replicate' n x = x : replicate' (n -1) x
 
 -- 2.10 e)
-selectiR :: [a] -> Int -> a
-selectiR list 0 = head list
-selectiR list i = selectiR (tail list) (i -1)
+selecti' :: [a] -> Int -> a
+selecti' list 0 = head list
+selecti' list i = selecti' (tail list) (i -1)
 
 -- 2.10 f)
-elemR :: Eq a => [a] -> a -> Bool
-elemR [] _ = False
-elemR (x : xs) k = (k == x) || elemR xs k
+elem' :: Eq a => [a] -> a -> Bool
+elem' [] _ = False
+elem' (x : xs) k = k == x || elem' xs k
 
 -- 2.11
 
@@ -126,9 +124,9 @@ primo2 :: Int -> Bool
 primo2 n = mindiv n == n
 
 -- 2.14
-nubR :: Eq a => [a] -> [a]
-nubR [] = []
-nubR (x : xs) = x : nubR [a | a <- xs, a /= x]
+nub' :: Eq a => [a] -> [a]
+nub' [] = []
+nub' (x : xs) = x : nub' [a | a <- xs, a /= x]
 
 -- 2.15
 intersperse :: a -> [a] -> [a]
@@ -155,7 +153,7 @@ toBitsRev n = n `mod` 2 : toBitsRev (n `div` 2)
 -- 2.18
 fromBits :: [Int] -> Int
 fromBits [] = 0
-fromBits (x : xs) = x * (2 ^ (length (x : xs) - 1)) + fromBits xs
+fromBits (x : xs) = x * 2 ^ (length (x : xs) - 1) + fromBits xs
 
 -- 2.19
 mdc :: Int -> Int -> Int
@@ -163,19 +161,65 @@ mdc a b | b == 0 = a
 mdc a b = mdc b (a `mod` b)
 
 -- 2.20 a)
-insertR :: Ord a => a -> [a] -> [a]
-insertR e [] = [e]
-insertR e (x : xs) | e < x = e : x : xs -- guard
-insertR e (x : xs) = x : insertR e xs   -- no guard (else)
+insert' :: Ord a => a -> [a] -> [a]
+insert' e [] = [e]
+insert' e (x : xs) | e < x = e : x : xs -- guard
+insert' e (x : xs) = x : insert' e xs -- no guard (else)
 
 -- 2.20 b)
-isortR :: Ord a => [a] -> [a]
-isortR [] = []
-isortR [x] = [x]
-isortR (x : xs) = insertR x (isortR xs)
+isort' :: Ord a => [a] -> [a]
+isort' [] = []
+isort' [x] = [x]
+isort' (x : xs) = insert' x (isort' xs)
 
 -- 2.21
+minimum' :: Ord a => [a] -> a
+minimum' [] = error "Found empty list"
+minimum' [a] = a
+minimum' (x:y:xs)
+  | x < y = minimum' (x : xs)
+  | otherwise = minimum' (y : xs)
+
+delete' :: Eq a => a -> [a] -> [a]
+delete' _ [] = []
+delete' e (x:xs)
+  | x == e = xs
+  | otherwise = x : delete' e xs
+
+ssort :: Ord a => [a] -> [a]
+ssort [] = []
+ssort [x] = [x]
+ssort xs = e : ssort (delete' e xs)
+  where
+    e = minimum' xs
 
 -- 2.22
+merge :: Ord a => [a] -> [a] -> [a]
+merge xs [] = xs
+merge [] ys = ys
+merge (x:xs) (y:ys)
+  | x < y = x : merge xs (y : ys)
+  | otherwise = y : merge (x:xs) ys
+
+metades :: [a] -> ([a], [a])
+metades xs = splitAt index xs
+  where
+    index = length xs `div` 2
+
+msort :: Ord a => [a] -> [a]
+msort [] = []
+msort [x] = [x]
+msort [a,b]
+  | a < b = [a,b]
+  | otherwise = [b,a]
+msort l = merge (msort xs) (msort ys)
+  where
+    split = metades l
+    xs = fst split
+    ys = snd split
 
 -- 2.23
+addPoly :: [Int] -> [Int] -> [Int]
+addPoly l [] = l
+addPoly [] l = l
+addPoly xs ys = zipWith (+) xs ys

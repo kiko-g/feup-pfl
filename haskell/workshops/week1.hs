@@ -28,9 +28,9 @@ binom n k = product [1 .. n] / (product [1 .. k] * product [1 .. (n - k)])
 
 -- 1.6
 raizes :: (Ord a, Floating a) => a -> a -> a -> (a, a)
-raizes a b c = ((- b - b24ac) / (2 * a), (- b + b24ac) / (2 * a))
+raizes a b c = ((- b - delta) / (2 * a), (- b + delta) / (2 * a))
   where
-    b24ac =
+    delta =
       if (b * b - 4 * a * c) < 0
         then error "Invalid numbers provided"
         else sqrt (b * b - 4 * a * c)
