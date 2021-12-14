@@ -63,7 +63,7 @@ myReverseL = foldl (\acc x -> x : acc) []
 
 -- 3.7 e)
 myElem :: Eq a => a -> [a] -> Bool
-myElem e = foldl (\acc x -> x == e) False
+myElem e = any (== e)
 
 
 -- 3.8 a)

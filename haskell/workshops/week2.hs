@@ -26,13 +26,9 @@ perfeitos n = [x | x <- [1 .. n], x == sum (divprop x)]
 
 -- 2.6
 pitagoricos :: Integer -> [(Integer, Integer, Integer)]
-pitagoricos n =
-  [ (x, y, z)
-    | x <- [1 .. n],
-      y <- [1 .. n],
-      z <- [1 .. n],
-      x ^ 2 + y ^ 2 == z ^ 2
-  ]
+pitagoricos n = [(x, y, z) | x <- vs, y <- vs, z <- vs, x ^ 2 + y ^ 2 == z ^ 2]
+  where
+    vs = [1 .. n]
 
 -- 2.7
 primo :: Integer -> Bool
@@ -100,15 +96,10 @@ forte s = length s >= 8 && any isUpper s && any isLower s && any isNumber s
 
 forte1 :: String -> Bool
 forte1 s = length s >= 8 && or (forteCaps s) && or (forteLow s) && or (forteNum s)
-
-forteCaps :: String -> [Bool]
-forteCaps = map isUpper
-
-forteLow :: String -> [Bool]
-forteLow = map isLower
-
-forteNum :: String -> [Bool]
-forteNum = map isNumber
+  where
+    forteLow = map isLower
+    forteNum = map isNumber
+    forteCaps = map isUpper
 
 -- 2.13
 mindiv :: Int -> Int
@@ -124,6 +115,8 @@ primo2 :: Int -> Bool
 primo2 n = mindiv n == n
 
 -- 2.14
+-- take an element and next iteration
+-- will receive a list without any ocurrence of it
 nub' :: Eq a => [a] -> [a]
 nub' [] = []
 nub' (x : xs) = x : nub' [a | a <- xs, a /= x]
@@ -157,14 +150,16 @@ fromBits (x : xs) = x * 2 ^ (length (x : xs) - 1) + fromBits xs
 
 -- 2.19
 mdc :: Int -> Int -> Int
-mdc a b | b == 0 = a
-mdc a b = mdc b (a `mod` b)
+mdc a b
+  | b == 0 = a
+  | otherwise = mdc b (a `mod` b)
 
 -- 2.20 a)
 insert' :: Ord a => a -> [a] -> [a]
 insert' e [] = [e]
-insert' e (x : xs) | e < x = e : x : xs -- guard
-insert' e (x : xs) = x : insert' e xs -- no guard (else)
+insert' e (x : xs)
+  | e < x = e : x : xs
+  | otherwise = x : insert' e xs
 
 -- 2.20 b)
 isort' :: Ord a => [a] -> [a]
@@ -176,13 +171,13 @@ isort' (x : xs) = insert' x (isort' xs)
 minimum' :: Ord a => [a] -> a
 minimum' [] = error "Found empty list"
 minimum' [a] = a
-minimum' (x:y:xs)
+minimum' (x : y : xs)
   | x < y = minimum' (x : xs)
   | otherwise = minimum' (y : xs)
 
 delete' :: Eq a => a -> [a] -> [a]
 delete' _ [] = []
-delete' e (x:xs)
+delete' e (x : xs)
   | x == e = xs
   | otherwise = x : delete' e xs
 
@@ -197,9 +192,9 @@ ssort xs = e : ssort (delete' e xs)
 merge :: Ord a => [a] -> [a] -> [a]
 merge xs [] = xs
 merge [] ys = ys
-merge (x:xs) (y:ys)
+merge (x : xs) (y : ys)
   | x < y = x : merge xs (y : ys)
-  | otherwise = y : merge (x:xs) ys
+  | otherwise = y : merge (x : xs) ys
 
 metades :: [a] -> ([a], [a])
 metades xs = splitAt index xs
@@ -209,9 +204,9 @@ metades xs = splitAt index xs
 msort :: Ord a => [a] -> [a]
 msort [] = []
 msort [x] = [x]
-msort [a,b]
-  | a < b = [a,b]
-  | otherwise = [b,a]
+msort [a, b]
+  | a < b = [a, b]
+  | otherwise = [b, a]
 msort l = merge (msort xs) (msort ys)
   where
     split = metades l
