@@ -49,8 +49,13 @@ fibonacci(N, Fib) :-
     Fib is F1+F2.
 
 % d) Is Prime
-isPrimeAux(X, N):- N>1, X rem N =:= 0.
-isPrimeAux(X, N):- N>1, Next is N-1, isPrimeAux(X, Next).
+isPrimeAux(X, N) :-
+    N>1,
+    X rem N=:=0.
+isPrimeAux(X, N) :-
+    N>1,
+    Next is N-1,
+    isPrimeAux(X, Next).
 
 isPrime(1).
 isPrime(X) :-
@@ -115,18 +120,20 @@ parent(haley, poppy).
 parent(haley, george).
 
 % a) ancestor
-ancestor(X, Y):-
+ancestor(X, Y) :-
     parent(X, Y).
 
-ancestor(X, Y):-
-    parent(X, Z), ancestor(Z, Y).
+ancestor(X, Y) :-
+    parent(X, Z),
+    ancestor(Z, Y).
 
 % b) descendant
-descendant(X, Y):-
+descendant(X, Y) :-
     parent(Y, X).
 
-descendant(X, Y):-
-    parent(Y, Z), descendant(X, Z).
+descendant(X, Y) :-
+    parent(Y, Z),
+    descendant(X, Z).
 
 % 3.
 cargo(tecnico, eleuterio).
@@ -147,16 +154,17 @@ chefiado_por(supervisor, supervisor_chefe).
 chefiado_por(supervisor_chefe, diretor).
 chefiado_por(secretaria_exec, diretor).
 
-superior(X, Y):-
+superior(X, Y) :-
     cargo(Cx, X),
     cargo(Cy, Y),
     chefiado_por(Cy, Cx).
 
-superior(X, Y):-
+superior(X, Y) :-
     cargo(Cx, X),
     cargo(_, Y),
     cargo(Cz, Z),
-    chefiado_por(Cz, Cx), superior(Z, Y).
+    chefiado_por(Cz, Cx),
+    superior(Z, Y).
 
 % 4.
 % a) true
@@ -174,68 +182,73 @@ superior(X, Y):-
 
 % 5
 % a) list size
-list_size(List, Size):-
+list_size(List, Size) :-
     list_size_aux(List, 0, Size).
 
 list_size_aux([], Size, Size).
-list_size_aux([_ | T], CurrentSize, Size):-
-    NewSize is CurrentSize + 1,
-    list_size_aux(T, NewSize , Size).
+list_size_aux([_|T], CurrentSize, Size) :-
+    NewSize is CurrentSize+1,
+    list_size_aux(T, NewSize, Size).
+
+list_size_alt([], 0).
+list_size_alt([_|T], Size) :-
+    list_size_alt(T, Size1),
+    Size=Size1+1.
 
 % b) list sum
-list_sum(List, Sum):-
+list_sum(List, Sum) :-
     list_sum_aux(List, 0, Sum).
 
 list_sum_aux([], Sum, Sum).
-list_sum_aux([H | T], CurrentSum, Sum):-
-    NewSum is CurrentSum + H,
+list_sum_aux([H|T], CurrentSum, Sum) :-
+    NewSum is CurrentSum+H,
     list_sum_aux(T, NewSum, Sum).
 
 % c) list product
-list_prod(List, Prod):-
+list_prod(List, Prod) :-
     list_prod_aux(List, 1, Prod).
 
 list_prod_aux([], Prod, Prod).
-list_prod_aux([H | T], CurrentProd, Prod):-
-    NewProd is CurrentProd * H,
+list_prod_aux([H|T], CurrentProd, Prod) :-
+    NewProd is CurrentProd*H,
     list_prod_aux(T, NewProd, Prod).
 
 % d) inner product
-inner_product(List1, List2, Result):-
+inner_product(List1, List2, Result) :-
     inner_product_aux(List1, List2, 0, Result).
 
 inner_product_aux([], [], Result, Result).
-inner_product_aux([A | Rest1], [B | Rest2], CurrentResult, Result):-
-    NewResult is CurrentResult + A * B,
+inner_product_aux([A|Rest1], [B|Rest2], CurrentResult, Result) :-
+    NewResult is CurrentResult+A*B,
     inner_product_aux(Rest1, Rest2, NewResult, Result).
 
 % e) count occurences 
-count(Elem, List, N):-
+count(Elem, List, N) :-
     count_aux(Elem, List, 0, N).
 
 count_aux(_, [], Count, Count).
-count_aux(Elem, [H | T], CurrentCount, Count):-
-    Elem = H, NextCount is CurrentCount + 1,
+count_aux(Elem, [H|T], CurrentCount, Count) :-
+    Elem=H,
+    NextCount is CurrentCount+1,
     count_aux(Elem, T, NextCount, Count).
 
-count_aux(Elem, [H | T], CurrentCount, Count):-
-    Elem \= H, count_aux(Elem, T, CurrentCount, Count).
+count_aux(Elem, [H|T], CurrentCount, Count) :-
+    Elem\=H,
+    count_aux(Elem, T, CurrentCount, Count).
 
 % 6. 
 % a) invert list
-invert(List1, List2):-
+invert(List1, List2) :-
     invert_aux(List1, [], List2).
 
 invert_aux([], Result, Result).
-invert_aux([H | T], Inverse, Result):-
-    invert_aux(T, [H | Inverse], Result).
+invert_aux([H|T], Inverse, Result) :-
+    invert_aux(T, [H|Inverse], Result).
 
 
 % b) delete one element
-del_one(Elem, [H | T], List):-
-    Elem = H,
-    del_one_aux(Elem, [], T, List).
-
-del_one(Elem, [H | T], List):-
-    Elem \= H,
-    del_one(Elem, T, List).
+del_one(_, [], []).
+del_one(E, [E|T], T).
+del_one(E, [H|T], [H|T1]) :-
+    H\=E,
+    del_one(E, T, T1).
