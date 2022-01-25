@@ -183,35 +183,35 @@ superior(X, Y) :-
 % 5
 % a) list size
 list_size(List, Size) :-
-    list_size_aux(List, 0, Size).
+    list_size(List, 0, Size).
 
-list_size_aux([], Size, Size).
-list_size_aux([_|T], CurrentSize, Size) :-
-    NewSize is CurrentSize+1,
-    list_size_aux(T, NewSize, Size).
+list_size([], Size, Size).
+list_size([_|T], Acc, Size) :-
+    NextAcc is Acc+1,
+    list_size(T, NextAcc, Size).
 
 list_size_alt([], 0).
-list_size_alt([_|T], Size) :-
-    list_size_alt(T, Size1),
-    Size=Size1+1.
+list_size_alt([_|T], L) :-
+    list_size_alt(T, L1),
+    L is L1+1.
 
 % b) list sum
 list_sum(List, Sum) :-
-    list_sum_aux(List, 0, Sum).
+    list_sum(List, Sum, 0).
 
-list_sum_aux([], Sum, Sum).
-list_sum_aux([H|T], CurrentSum, Sum) :-
+list_sum([], Sum, Sum).
+list_sum([H|T], Sum, CurrentSum) :-
     NewSum is CurrentSum+H,
-    list_sum_aux(T, NewSum, Sum).
+    list_sum(T, Sum, NewSum).
 
 % c) list product
 list_prod(List, Prod) :-
-    list_prod_aux(List, 1, Prod).
+    list_prod(List, 1, Prod).
 
-list_prod_aux([], Prod, Prod).
-list_prod_aux([H|T], CurrentProd, Prod) :-
-    NewProd is CurrentProd*H,
-    list_prod_aux(T, NewProd, Prod).
+list_prod([], Prod, Prod).
+list_prod([H|T], Acc, Prod) :-
+    NextAcc is Acc*H,
+    list_prod(T, NextAcc, Prod).
 
 % d) inner product
 inner_product(List1, List2, Result) :-
@@ -249,6 +249,6 @@ invert_aux([H|T], Inverse, Result) :-
 % b) delete one element
 del_one(_, [], []).
 del_one(E, [E|T], T).
-del_one(E, [H|T], [H|T1]) :-
-    H\=E,
+del_one(E, [H|T], [H|T1]):-
+    E\=H,
     del_one(E, T, T1).
