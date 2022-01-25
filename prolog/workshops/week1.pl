@@ -84,17 +84,17 @@ b9(X) :-
     \+ parent(gloria, X).
 
 % c) relations
-father(Parent, Child) :-
-    male(Parent),
-    parent(Parent, Child).
+father(P, C) :-
+    male(P),
+    parent(P, C).
 
-grandparent(Grandparent, Grandchild) :-
-    parent(Grandparent, Parent),
-    parent(Parent, Grandchild).
+grandparent(GP, GC) :-
+    parent(GP, P),
+    parent(P, GC).
 
-grandmother(Grandparent, Grandchild) :-
-    grandparent(Grandparent, Grandchild),
-    female(Grandparent).
+grandmother(GP, GC) :-
+    grandparent(GP, GC),
+    female(GP).
 
 siblings(S1, S2) :-
     parent(P1, S1),
