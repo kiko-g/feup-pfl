@@ -1,3 +1,12 @@
+% General auxiliar predicates
+myappend([], L2, L2).
+myappend([H|T], L2, [H|T3]) :-
+    myappend(T, L2, T3).
+
+last([X], X).
+last([_|Xs], X) :-
+    last(Xs, X).
+
 % 1. Recursion
 % a) Fatorial
 fatorial(0, 1).
@@ -246,9 +255,129 @@ invert_aux([H|T], Inverse, Result) :-
     invert_aux(T, [H|Inverse], Result).
 
 
-% b) delete one element
+% b) delete one occurence of element
 del_one(_, [], []).
 del_one(E, [E|T], T).
-del_one(E, [H|T], [H|T1]):-
+del_one(E, [H|T], [H|T1]) :-
     E\=H,
     del_one(E, T, T1).
+
+% c) delete all occurences of element
+del_all(_, [], []).
+del_all(E, [E|T], R) :-
+    del_all(E, T, R).
+del_all(E, [H|T], [H|T1]) :-
+    E\=H,
+    del_all(E, T, T1).
+
+% d) delete all occurences of all elements provided
+del_all_list([], [], []).
+del_all_list([], R, R).
+del_all_list([E|Es], L, R1) :-
+    del_all(E, L, R),
+    del_all_list(Es, R, R1).
+
+% e) delete duplicates
+del_dups([], []).
+del_dups(List, Result) :-
+    del_dups(List, [], Result).
+
+del_dups([], Result, Result).
+del_dups([X|Xs], Distinct, Result) :-
+    (   member(X, Distinct),
+        del_dups(Xs, Distinct, Result)
+    ;   \+ member(X, Distinct),
+        del_dups(Xs, [X|Distinct], Result)
+    ).
+
+% f) determine if list is a permutation of another list
+list_perm([], []).
+list_perm([X|Xs], [Y|Ys]) :-
+    length([X|Xs], S1),
+    length([Y|Ys], S2),
+    S1=:=S2,
+    list_perm_aux([X|Xs], [Y|Ys]).
+
+list_perm_aux([], _).
+list_perm_aux([X|Xs], Ys) :-
+    member(X, Ys),
+    list_perm_aux(Xs, Ys).
+
+% g) create a list with Amount Elems
+replicate(Amount, Elem, List) :-
+    replicate(Amount, Elem, [], List).
+
+replicate(0, _, List, List).
+replicate(Amount, Elem, ListAcc, List) :-
+    NextAmount is Amount-1,
+    replicate(NextAmount, Elem, [Elem|ListAcc], List).
+
+% h) L2 will become L1 with Elem values in between its elements
+intersperse(Elem, L1, L2) :-
+    intersperse(Elem, L1, [], L2R),
+    invert(L2R, L2).
+
+intersperse(_, [X], L, [X|L]).
+intersperse(Elem, [X|Xs], ListAcc, R) :-
+    intersperse(Elem, Xs, [Elem, X|ListAcc], R).
+
+% i) insert_elem(+Index, +L1, +Elem, ?L2)
+insert_elem(0, L1, Elem, [Elem|L1]).
+insert_elem(Index, L1, Elem, L2) :-
+    length(L1, S1),
+    Index=<S1,
+    insert_elem(Index, L1, [], Elem, L2).
+
+insert_elem(Index, [X|XRight], XLeft, Elem, L2) :-
+    Index\=0,
+    NextIndex is Index-1,
+    insert_elem(NextIndex, XRight, [X|XLeft], Elem, L2).
+
+insert_elem(0, XRight, XLeftReversed, Elem, L2) :-
+    invert(XLeftReversed, XLeft),
+    myappend(XLeft, [Elem], XLeftElem),
+    myappend(XLeftElem, XRight, L2).
+
+% j) delete_elem(+Index, +List1, ?Elem, ?List2)
+delete_elem(0, [Elem|L1], Elem, L1).
+delete_elem(_, L1, Elem, L1) :-
+    \+ member(Elem, L1).
+
+delete_elem(Index, L1, Elem, L2) :-
+    length(L1, S1),
+    Index=<S1,
+    delete_elem(Index, L1, [], Elem, L2).
+
+delete_elem(Index, [X|XRight], XLeft, Elem, L2) :-
+    Index\= -1,
+    NextIndex is Index-1,
+    delete_elem(NextIndex, XRight, [X|XLeft], Elem, L2).
+
+delete_elem(-1, XRight, [X|XLeftReversed], Elem, L2) :-
+    X=Elem,
+    invert(XLeftReversed, XLeft),
+    myappend(XLeft, XRight, L2).
+
+% k)
+replace(0, [Old|L1], Old, New, [New|L1]).
+replace(_, L1, Old, _, L1) :-
+    member(Old, L1).
+
+replace(Index, L1, Old, New, L2) :-
+    length(L1, S1),
+    Index=<S1,
+    replace(Index, L1, [], Old, New, L2).
+
+replace(Index, [X|XRight], XLeft, Old, New, L2) :-
+    Index \= -1,
+    NextIndex is Index-1,
+    replace(NextIndex, XRight, [X|XLeft], Old, New, L2).
+
+replace(-1, XRight, [X|XLeftReversed], Old, New, L2) :-
+    write(X),
+    X=Old,
+    invert(XLeftReversed, XLeft),
+    write(XLeft),
+    write(XRight),
+    myappend(XLeft, [New], XLeftElem),
+    myappend(XLeftElem, XRight, L2).
