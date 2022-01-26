@@ -28,15 +28,8 @@ remove_person:-
 remove_person:- write('Gender should be male or female'), fail.
 
 remove_person_handler(Gender, Person):-
-  Gender = male,
+  (Gender = male ; Gender = female),
   retractall(male(Person)),
-  retractall(parents(Person, _, _)),
-  retractall(parents(_, Person, _)),
-  retractall(parents(_, _, Person)).
-
-remove_person_handler(Gender, Person):-
-  Gender = female,
-  retractall(female(Person)),
   retractall(parents(Person, _, _)),
   retractall(parents(_, Person, _)),
   retractall(parents(_, _, Person)).
@@ -70,12 +63,12 @@ count_occurrences(X, [X|T], N1) :- !, count_occurrences(X, T, N), N1 is N+1.
 count_occurrences(X, [_|T], N1) :- count_occurrences(X, T, N1).
 
 most_diversified(Company):-
-  findall(C, flight(_, _, C, _, _, _), Occurences),
-  sort(Occurences, Companies),
-  most_diversified_aux(Occurences, Companies, [], CompanyOccurrences),
-  sort(1, @>=, CompanyOccurrences, [_-Company | _]).
+  findall(C, flight(_, _, C, _, _, _), Os),
+  sort(Os, Cs),
+  most_diversified_aux(Os, Cs, [], COs),
+  sort(1, @>=, COs, [_-Company | _]).
 
 most_diversified_aux(_, [], R, R).
-most_diversified_aux(Occurences, [C|Cs], CompanyOccurrences, CompanyOccurrencesResult):-
-  count_occurrences(C, Occurences, N),
-  most_diversified_aux(Occurences, Cs, [N-C | CompanyOccurrences], CompanyOccurrencesResult).
+most_diversified_aux(Os, [C|Cs], COs, COsResult):-
+  count_occurrences(C, Os, N),
+  most_diversified_aux(Os, Cs, [N-C | COs], COsResult).
