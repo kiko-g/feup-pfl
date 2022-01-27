@@ -1,8 +1,3 @@
-classify(BMI, 'low weight'):- BMI < 18.5, !.
-classify(BMI, 'normal weight'):- BMI >= 18.5, BMI < 25, !.
-classify(BMI, 'excessive weight'):- BMI >= 25, BMI < 30, !.
-classify(BMI, 'obesity'):- BMI >= 30, !.
-
 % 1. Funcionamento do cut
 s(1).
 s(2) :- !.

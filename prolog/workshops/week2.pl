@@ -3,9 +3,15 @@ myappend([], L2, L2).
 myappend([H|T], L2, [H|T3]) :-
     myappend(T, L2, T3).
 
-last([X], X).
-last([_|Xs], X) :-
-    last(Xs, X).
+mymember(_, []) :-
+    fail.
+mymember(Elem, [Elem|_]).
+mymember(Elem, [_|Xs]) :-
+    mymember(Elem, Xs).
+
+mylast([Last], Last).
+mylast([_|Xs], Last) :-
+    mylast(Xs, Last).
 
 % 1. Recursion
 % a) Fatorial
@@ -369,15 +375,65 @@ replace(Index, L1, Old, New, L2) :-
     replace(Index, L1, [], Old, New, L2).
 
 replace(Index, [X|XRight], XLeft, Old, New, L2) :-
-    Index \= -1,
+    Index\= -1,
     NextIndex is Index-1,
-    replace(NextIndex, XRight, [X|XLeft], Old, New, L2).
+    replace(NextIndex,
+            XRight,
+            [X|XLeft],
+            Old,
+            New,
+            L2).
 
 replace(-1, XRight, [X|XLeftReversed], Old, New, L2) :-
-    write(X),
     X=Old,
     invert(XLeftReversed, XLeft),
     write(XLeft),
     write(XRight),
     myappend(XLeft, [New], XLeftElem),
     myappend(XLeftElem, XRight, L2).
+
+% 6.
+% a) list_append(L1, L2, L3)
+list_append(L1, [], L1).
+list_append([], L2, L2).
+list_append([H|T], L2, [H|T3]) :-
+    list_append(T, L2, T3).
+
+% b) list_member(?Elem, ?List)
+list_member(Elem, List) :-
+    append(_, [Elem|_], List).
+
+% c) list_last(+List, ?Last)
+list_last(List, Last) :-
+    append(_, [Last], List).
+
+% d) list_nth(?N, ?List, ?Elem)
+list_nth(N, List, Elem) :-
+    length(ListLeft, N),
+    append(ListLeft, [Elem|_], List).
+
+% e) list_append(+ListOfLists, ?List)
+% list_append([[1,2,3,[4]], [7,9,8]], L).
+list_append([], []).
+list_append([L|Ls], As) :-
+    append(L, Ws, As),
+    list_append(Ls, Ws).
+
+% e') list_flatten(+ListOfLists, ?List)
+% list_flatten([[1,2,3,[4,3,5]], [7,9,8]], L).
+list_flatten([], []) :- !.
+list_flatten([L1|Ls], Flat) :- !,
+    list_flatten(L1, L2),
+    list_flatten(Ls, L3),
+    append(L2, L3, Flat).
+list_flatten(L, [L]).
+
+% f) list_del(+List, +Elem, ?Res)
+list_del(List, Elem, Res):-
+    append(Left, [Elem | Right], List),
+    append(Left, Right, Res).
+
+% g) list_before(?First, ?Second, ?List)
+list_before(First, Second, List):-
+    append(_, [First | Right], List),
+    append(_, [Second | _], Right).
