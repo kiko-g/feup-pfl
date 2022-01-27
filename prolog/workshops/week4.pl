@@ -50,25 +50,34 @@ flight(madrid, london, iberia, ib3166, 1550, 145).
 flight(london, madrid, iberia, ib3163, 1030, 140).
 flight(porto, frankfurt, lufthansa, lh1177, 1230, 165).
 
-% a)
+get_all_companies(Companies):-
+  findall(C, flight(_, _, C, _, _, _), L),
+  sort(L, Companies).
+
+% a) get_all_nodes(-ListOfAirports)
 get_all_nodes(ListOfAirports):-
   findall(X, flight(X, _, _, _, _, _), L1),
   findall(Y, flight(_, Y, _, _, _, _), L2),
   append(L1, L2, L),
-  sort(L,ListOfAirports).
+  sort(L, ListOfAirports).
 
-% b)
-count_occurrences(_, [], 0).
-count_occurrences(X, [X|T], N1) :- !, count_occurrences(X, T, N), N1 is N+1.
-count_occurrences(X, [_|T], N1) :- count_occurrences(X, T, N1).
-
+% b) most_diversified(-Company)
 most_diversified(Company):-
-  findall(C, flight(_, _, C, _, _, _), Os),
-  sort(Os, Cs),
-  most_diversified_aux(Os, Cs, [], COs),
-  sort(1, @>=, COs, [_-Company | _]).
+  get_all_companies(Companies),
+  findall(C-D, flight(_, D, C, _, _, _), L1),
+  sort(L1, CompanyDestinations), !,
+  count_each(Companies, CompanyDestinations, [], COs),
+  sort(1, @=<, COs, [Company|_]).
 
-most_diversified_aux(_, [], R, R).
-most_diversified_aux(Os, [C|Cs], COs, COsResult):-
-  count_occurrences(C, Os, N),
-  most_diversified_aux(Os, Cs, [N-C | COs], COsResult).
+count_each([], _, L, L).
+count_each([C | Cs], CompanyDestinations, CompanyOccorrences, Result):-
+  count_each_aux(C, CompanyDestinations, 0, O),
+  count_each(Cs, CompanyDestinations, [C-O | CompanyOccorrences], Result).
+
+count_each_aux(_, [], O, O).
+count_each_aux(Company, [Company-_D | CDs], Counter, Result):-
+  NextCounter is Counter + 1,
+  count_each_aux(Company, CDs, NextCounter, Result).
+
+count_each_aux(Company, [_-_D | CDs], Counter, Result):-
+  count_each_aux(Company, CDs, Counter, Result).
